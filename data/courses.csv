@@ -1,0 +1,11 @@
+course_id,course_name,lecturer_id,group_id,student_count,duration_hours
+CS22023,Artificial Intelligence,L001,42_CS,28,2.0
+CS22993,Group Project in Software Development,L002,42_CS,28,3.0
+SE22013,Software Architecture,L003,42_CS,28,2.0
+SE22022,Software Project Management,L003,42_CS,28,2.0
+COE22012,Advanced Computer Architecture,L004,42_CE,24,2.0
+COE22023,Engineering Drawing,L005,42_CE,24,3.0
+COE22032,Computer Interfacing and Microprocessors,L006,42_CS,28,2.0
+CM22112,Numerical Methods,L007,42_CS,28,2.0
+CS22012,Advanced Data Structures and Algorithms,L008,42_CS,28,2.0
+DL4162,Research Writing Skills,L009,42_CS,28,1.5
