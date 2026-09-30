@@ -1,4 +1,13 @@
 group_id,group_name,student_count
+40_CE,Intake 40 CE,30
+40_CS,Intake 40 CS,30
+40_SE,Intake 40 SE,30
+41_CE,Intake 41 CE,25
+41_CS,Intake 41 CS,25
+41_SE,Intake 41 SE,25
+42_CE,Intake 42 CE,24
 42_CS,Intake 42 CS,28
 42_SE,Intake 42 SE,30
-42_CE,Intake 42 CE,24
+43_CE,Intake 43 CE,20
+43_CS,Intake 43 CS,20
+43_SE,Intake 43 SE,20

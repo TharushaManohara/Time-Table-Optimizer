@@ -245,30 +245,44 @@ def build_course_details(filtered_df, subjects_input):
         if not sub_row.empty:
             sub = sub_row.iloc[0]
             course_rows = filtered_df[filtered_df["Course"] == c_id]
-            programs_set = set()
+            # Collect all intake→programs mappings for this course
+            mapping_parts = []
+            seen_parts = set()
             for _, cr in course_rows.iterrows():
                 mapping_str = cr.get("Intake → Programs", "")
-                if ":" in mapping_str:
-                    programs_part = mapping_str.split(":")[1].strip()
-                    for p in programs_part.split(","):
-                        if p.strip():
-                            programs_set.add(p.strip())
-                else:
-                    for part in mapping_str.split("|"):
-                        if ":" in part:
-                            prog_p = part.split(":")[1].strip()
-                            for p in prog_p.split(","):
-                                if p.strip():
-                                    programs_set.add(p.strip())
+                for part in str(mapping_str).split("|"):
+                    part = part.strip()
+                    if part and part not in seen_parts:
+                        seen_parts.add(part)
+                        mapping_parts.append(part)
+            intake_programs_str = " | ".join(mapping_parts)
+            
+            # Collect student groups
+            all_groups = set()
+            for _, cr in course_rows.iterrows():
+                sg = cr.get("Student Group(s)", "")
+                for g in str(sg).split(","):
+                    g = g.strip()
+                    if g and g != "nan":
+                        all_groups.add(g)
+            
+            dur = sub.get("duration_hours", 1.0)
+            try:
+                dur_val = float(dur)
+                dur_str = f"{dur_val}h"
+            except (ValueError, TypeError):
+                dur_str = str(dur)
             
             legend_rows.append({
                 "Course Code": c_id,
                 "Subject Name": sub.get("subject_name", ""),
                 "Lecturer": sub.get("lecturer_id", ""),
+                "Duration": dur_str,
                 "Credits": sub.get("credits", ""),
                 "Assessment Type": sub.get("assessment_type", ""),
                 "Course Type": sub.get("course_type", ""),
-                "Programs": ", ".join(sorted(programs_set))
+                "Intake → Programs": intake_programs_str,
+                "Student Groups": ", ".join(sorted(all_groups))
             })
     return pd.DataFrame(legend_rows)
 
@@ -394,7 +408,7 @@ default_intakes = pd.DataFrame(
 intakes_input = st.data_editor(
     default_intakes,
     num_rows="dynamic",
-    use_container_width=True,
+    width="stretch",
     key="intakes_editor",
     column_config={
         "intake_id": st.column_config.TextColumn(
@@ -438,7 +452,7 @@ default_programs = pd.DataFrame(
 programs_input = st.data_editor(
     default_programs,
     num_rows="dynamic",
-    use_container_width=True,
+    width="stretch",
     key="programs_editor",
     column_config={
         "program_id": st.column_config.TextColumn(
@@ -497,7 +511,7 @@ default_intake_programs = pd.DataFrame(
 intake_programs_input = st.data_editor(
     default_intake_programs,
     num_rows="dynamic",
-    use_container_width=True,
+    width="stretch",
     key="intake_programs_editor",
     column_config={
         "group_id": st.column_config.TextColumn(
@@ -532,7 +546,7 @@ if not intake_programs_input.empty:
 
     st.dataframe(
         intake_programs_input,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -732,6 +746,17 @@ else:
 default_subjects = pd.DataFrame(
     {
         "course_id": [
+            # Intake 41 (8 subjects)
+            "CS32042",
+            "CS32092",
+            "CM32051",
+            "CS32992",
+            "CS32012",
+            "CS32022",
+            "CS32032",
+            "CS32082",
+            # Intake 42 (10 subjects)
+            "CS22012",
             "CS22023",
             "CS22993",
             "SE22013",
@@ -740,36 +765,103 @@ default_subjects = pd.DataFrame(
             "COE22023",
             "COE22032",
             "CM22112",
-            "CS22012",
-            "DL4162"
+            "DL4162",
+            # Intake 43 (10 subjects)
+            "CS12012",
+            "CS12023",
+            "CS12033",
+            "CS12041",
+            "SE12012",
+            "CM12052",
+            "COE12241",
+            "COE12022",
+            "COE12992",
+            "DL2142"
         ],
         "subject_name": [
+            # Intake 41
+            "Information Security",
+            "Machine Learning",
+            "Statistical Tools for Computing",
+            "Independent Research Study",
+            "Computer Graphics and Visualization",
+            "Automata Theory",
+            "Complex Systems and Agent Technology",
+            "Natural Language Processing",
+            # Intake 42
+            "Advanced Data Structures and Algorithms",
             "Artificial Intelligence",
             "Group Project in Software Development",
             "Software Architecture",
             "Software Project Management",
-            "Advanced Computer Architecture",
             "Engineering Drawing",
+            "Advanced Computer Architecture",
             "Computer Interfacing and Microprocessors",
             "Numerical Methods",
-            "Advanced Data Structures and Algorithms",
-            "Research Writing Skills"
+            "Research Writing Skills",
+            # Intake 43
+            "Web Development",
+            "Object Oriented Programming",
+            "Computer Networks",
+            "Creative Media Tools",
+            "Software Analysis and Modeling",
+            "Discrete Mathematics",
+            "Fundamentals of Electronics",
+            "Fundamentals of Electrical Engineering",
+            "Collaborative Hardware Project",
+            "English: Advanced Study Skills for CS/SE/CE"
         ],
         "lecturer_id": [
-            lecturer_options[0] if len(lecturer_options) > 0 else "",
-            lecturer_options[1] if len(lecturer_options) > 1 else "",
-            lecturer_options[2] if len(lecturer_options) > 2 else "",
-            lecturer_options[2] if len(lecturer_options) > 2 else "",
-            lecturer_options[3] if len(lecturer_options) > 3 else "",
-            lecturer_options[4] if len(lecturer_options) > 4 else "",
-            lecturer_options[5] if len(lecturer_options) > 5 else "",
-            lecturer_options[6] if len(lecturer_options) > 6 else "",
-            lecturer_options[7] if len(lecturer_options) > 7 else "",
-            lecturer_options[8] if len(lecturer_options) > 8 else ""
+            # Intake 41
+            "L010",
+            "L010",
+            "L014",
+            "L008",
+            "L012",
+            "L013",
+            "L011",
+            "L011",
+            # Intake 42
+            "L008",
+            "L001",
+            "L002",
+            "L003",
+            "L003",
+            "L005",
+            "L004",
+            "L006",
+            "L007",
+            "L009",
+            # Intake 43
+            "L010",
+            "L008",
+            "L015",
+            "L012",
+            "L016",
+            "L017",
+            "L018",
+            "L018",
+            "L004",
+            "L019"
         ],
-        "credits": [3, 3, 3, 2, 2, 2, 2, 2, 2, 2],
-        "assessment_type": ["GPA", "GPA", "GPA", "GPA", "GPA", "GPA", "GPA", "GPA", "GPA", "GPA"],
-        "course_type": ["C", "C", "C", "C", "C", "C", "C", "C", "C", "C"]
+        "duration_hours": [
+            # Intake 41
+            2.0, 2.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+            # Intake 42
+            2.0, 2.0, 3.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 1.5,
+            # Intake 43
+            2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0
+        ],
+        "credits": [
+            # Intake 41
+            2, 2, 1, 2, 2, 2, 2, 2,
+            # Intake 42
+            2, 3, 3, 3, 2, 2, 3, 2, 2, 2,
+            # Intake 43
+            2, 3, 3, 1, 2, 2, 1, 2, 1, 2
+        ],
+        "assessment_type": ["GPA"] * 28,
+        "course_type": ["C"] * 28
     }
 )
 
@@ -777,7 +869,7 @@ default_subjects = pd.DataFrame(
 subjects_input = st.data_editor(
     default_subjects,
     num_rows="dynamic",
-    use_container_width=True,
+    width="stretch",
     key="subjects_editor",
     column_config={
         "course_id": st.column_config.TextColumn(
@@ -789,6 +881,13 @@ subjects_input = st.data_editor(
         "lecturer_id": st.column_config.SelectboxColumn(
             "Lecturer ID",
             options=lecturer_options
+        ),
+        "duration_hours": st.column_config.NumberColumn(
+            "Duration (hours)",
+            min_value=0.5,
+            max_value=6.0,
+            step=0.5,
+            help="Lecture duration in hours (e.g. 1.5, 2.0, 3.0)"
         ),
         "credits": st.column_config.NumberColumn(
             "Credits",
@@ -828,70 +927,137 @@ st.write(
 default_subject_groups = pd.DataFrame(
     {
         "course_id": [
-            # CS22023 AI: 43_CS, 43_SE, 42_CE, 41_CS
-            "CS22023", "CS22023", "CS22023", "CS22023",
-            # CS22993 GPSD: 41_CS, 41_SE, 42_CE
+            # Intake 41 (8 subjects)
+            # CS32042 INS: 41_CS, 41_SE, 41_CE
+            "CS32042", "CS32042", "CS32042",
+            # CS32092 ML: 41_CS, 41_SE, 41_CE
+            "CS32092", "CS32092", "CS32092",
+            # CM32051 STC: 41_CS, 41_SE, 41_CE
+            "CM32051", "CM32051", "CM32051",
+            # CS32992 IRS: 41_CS, 41_SE, 41_CE
+            "CS32992", "CS32992", "CS32992",
+            # CS32012 CGV: 41_CS, 41_SE
+            "CS32012", "CS32012",
+            # CS32022 AT: 41_CS, 41_SE
+            "CS32022", "CS32022",
+            # CS32032 CSAT: 41_CS, 41_SE, 41_CE
+            "CS32032", "CS32032", "CS32032",
+            # CS32082 NLP: 41_CS, 41_SE, 41_CE
+            "CS32082", "CS32082", "CS32082",
+
+            # Intake 42 (10 subjects)
+            # CS22012 ADSA: 42_CS, 42_SE, 42_CE
+            "CS22012", "CS22012", "CS22012",
+            # CS22023 AI: 42_CS, 42_SE, 42_CE
+            "CS22023", "CS22023", "CS22023",
+            # CS22993 GPSD: 42_CS, 42_SE, 42_CE
             "CS22993", "CS22993", "CS22993",
             # SE22013 SA: 42_CS, 42_SE
             "SE22013", "SE22013",
             # SE22022 SPM: 42_CS, 42_SE
             "SE22022", "SE22022",
-            # COE22012 ACA: 42_CE
+            # COE22012 ED: 42_CE
             "COE22012",
-            # COE22023 ED: 42_CE
+            # COE22023 ACA: 42_CE
             "COE22023",
-            # COE22032 CIM: 43_CE, 42_CE, 41_CE, 40_CE
-            "COE22032", "COE22032", "COE22032", "COE22032",
+            # COE22032 CIM: 42_CS, 42_SE, 42_CE
+            "COE22032", "COE22032", "COE22032",
             # CM22112 NM: 42_CS, 42_SE, 42_CE
             "CM22112", "CM22112", "CM22112",
-            # CS22012 ADSA: 42_CS, 42_SE, 42_CE
-            "CS22012", "CS22012", "CS22012",
-            # DL4162 RWS: 43_CS, 42_CS, 41_SE, 40_CE
-            "DL4162", "DL4162", "DL4162", "DL4162"
+            # DL4162 RWS: 42_CS, 42_SE, 42_CE
+            "DL4162", "DL4162", "DL4162",
+
+            # Intake 43 (10 subjects)
+            # CS12012 WD: 43_CS, 43_SE, 43_CE
+            "CS12012", "CS12012", "CS12012",
+            # CS12023 OOP: 43_CS, 43_SE, 43_CE
+            "CS12023", "CS12023", "CS12023",
+            # CS12033 CN: 43_CS, 43_SE, 43_CE
+            "CS12033", "CS12033", "CS12033",
+            # CS12041 CMT: 43_CS, 43_SE, 43_CE
+            "CS12041", "CS12041", "CS12041",
+            # SE12012 SAM: 43_CS, 43_SE
+            "SE12012", "SE12012",
+            # CM12052 DM: 43_CS, 43_SE, 43_CE
+            "CM12052", "CM12052", "CM12052",
+            # COE12241 FE: 43_CS, 43_SE, 43_CE
+            "COE12241", "COE12241", "COE12241",
+            # COE12022 FEE: 43_CE
+            "COE12022",
+            # COE12992 CHWP: 43_CS, 43_SE, 43_CE
+            "COE12992", "COE12992", "COE12992",
+            # DL2142 ASSE: 43_CS, 43_SE, 43_CE
+            "DL2142", "DL2142", "DL2142"
         ],
         "intake_id": [
-            # AI
-            "43", "43", "42", "41",
-            # GPSD
-            "41", "41", "42",
-            # SA
-            "42", "42",
-            # SPM
-            "42", "42",
-            # ACA
-            "42",
-            # ED
-            "42",
-            # CIM
-            "43", "42", "41", "40",
-            # NM
+            # Intake 41
+            "41", "41", "41",
+            "41", "41", "41",
+            "41", "41", "41",
+            "41", "41", "41",
+            "41", "41",
+            "41", "41",
+            "41", "41", "41",
+            "41", "41", "41",
+
+            # Intake 42
             "42", "42", "42",
-            # ADSA
             "42", "42", "42",
-            # RWS
-            "43", "42", "41", "40"
+            "42", "42", "42",
+            "42", "42",
+            "42", "42",
+            "42",
+            "42",
+            "42", "42", "42",
+            "42", "42", "42",
+            "42", "42", "42",
+
+            # Intake 43
+            "43", "43", "43",
+            "43", "43", "43",
+            "43", "43", "43",
+            "43", "43", "43",
+            "43", "43",
+            "43", "43", "43",
+            "43", "43", "43",
+            "43",
+            "43", "43", "43",
+            "43", "43", "43"
         ],
         "program_id": [
-            # AI
-            "CS", "SE", "CE", "CS",
-            # GPSD
+            # Intake 41
             "CS", "SE", "CE",
-            # SA
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
             "CS", "SE",
-            # SPM
             "CS", "SE",
-            # ACA
-            "CE",
-            # ED
-            "CE",
-            # CIM
-            "CE", "CE", "CE", "CE",
-            # NM
             "CS", "SE", "CE",
-            # ADSA
             "CS", "SE", "CE",
-            # RWS
-            "CS", "CS", "SE", "CE"
+
+            # Intake 42
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
+            "CS", "SE",
+            "CS", "SE",
+            "CE",
+            "CE",
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
+
+            # Intake 43
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
+            "CS", "SE",
+            "CS", "SE", "CE",
+            "CS", "SE", "CE",
+            "CE",
+            "CS", "SE", "CE",
+            "CS", "SE", "CE"
         ]
     }
 )
@@ -934,7 +1100,7 @@ program_options = (
 subject_groups_input = st.data_editor(
     default_subject_groups,
     num_rows="dynamic",
-    use_container_width=True,
+    width="stretch",
     key="subject_groups_editor",
     column_config={
 
@@ -1087,7 +1253,7 @@ if not subject_groups_input.empty:
 
     st.dataframe(
         resolved[display_columns],
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -1101,52 +1267,57 @@ st.subheader("👥 Shared Lecture Preview")
 
 if not resolved.empty:
 
-    preview = (
-        resolved
-        .groupby(
-            [
-                "course_id",
-                "subject_name",
-                "lecturer_id"
-            ],
-            dropna=False
+    # Build proper grouped preview
+    preview_rows = []
+    for course_id, group in resolved.groupby("course_id", sort=False):
+        subject_name = group["subject_name"].iloc[0] if "subject_name" in group.columns else ""
+        lecturer_id = group["lecturer_id"].iloc[0] if "lecturer_id" in group.columns else ""
+        
+        # Build intake → programs mapping string
+        intake_prog_map = {}
+        for _, r in group.iterrows():
+            intake = str(r.get("intake_id", "")).strip()
+            prog = str(r.get("program_id", "")).strip().upper()
+            if intake and prog:
+                if intake not in intake_prog_map:
+                    intake_prog_map[intake] = []
+                if prog not in intake_prog_map[intake]:
+                    intake_prog_map[intake].append(prog)
+        
+        sorted_intakes = sorted(intake_prog_map.keys(), key=lambda x: (int(x) if x.isdigit() else x))
+        mapping_str = " | ".join(
+            f"{intake}: {', '.join(sorted(intake_prog_map[intake]))}"
+            for intake in sorted_intakes
         )
-        .agg(
-            student_groups=(
-                "program_id",
-                lambda x: ", ".join(
-                    sorted(
-                        set(
-                            x.astype(str)
-                            .str.strip()
-                        )
-                    )
-                )
-            ),
-
-            intakes=(
-                "intake_id",
-                lambda x: ", ".join(
-                    sorted(
-                        set(
-                            x.astype(str)
-                            .str.strip()
-                        )
-                    )
-                )
-            ),
-
-            group_count=(
-                "program_id",
-                "count"
-            )
+        
+        student_groups_str = ", ".join(
+            f"{intake}_{prog}"
+            for intake in sorted_intakes
+            for prog in sorted(intake_prog_map[intake])
         )
-        .reset_index()
-    )
-
+        
+        total_students = 0
+        if "student_count" in group.columns:
+            for _, r in group.iterrows():
+                try:
+                    total_students += int(r["student_count"])
+                except (ValueError, TypeError):
+                    pass
+        
+        preview_rows.append({
+            "Course ID": course_id,
+            "Subject Name": subject_name,
+            "Intake → Programs": mapping_str,
+            "Student Groups": student_groups_str,
+            "Total Students": total_students,
+            "Lecturer": lecturer_id,
+            "Shared Lecture": "✅ Yes" if len(group) > 1 else "➖ No"
+        })
+    
+    preview = pd.DataFrame(preview_rows)
     st.dataframe(
         preview,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -1175,7 +1346,8 @@ else:
     required_subject_columns = {
         "course_id",
         "subject_name",
-        "lecturer_id"
+        "lecturer_id",
+        "duration_hours"
     }
 
     missing_subject_columns = (
@@ -1462,7 +1634,7 @@ st.subheader("🏫 Rooms")
 rooms_input = st.data_editor(
     rooms,
     num_rows="dynamic",
-    use_container_width=True,
+    width="stretch",
     key="rooms_editor"
 )
 
@@ -1476,7 +1648,7 @@ st.subheader("👥 Student Groups")
 student_groups_input = st.data_editor(
     student_groups,
     num_rows="dynamic",
-    use_container_width=True,
+    width="stretch",
     key="groups_editor"
 )
 
@@ -1490,7 +1662,7 @@ st.subheader("👨‍🏫 Lecturers")
 lecturers_input = st.data_editor(
     lecturers,
     num_rows="dynamic",
-    use_container_width=True,
+    width="stretch",
     key="lecturers_editor"
 )
 
@@ -1504,7 +1676,7 @@ st.subheader("⏰ Time Slots")
 timeslots_input = st.data_editor(
     timeslots,
     num_rows="dynamic",
-    use_container_width=True,
+    width="stretch",
     key="timeslots_editor"
 )
 
@@ -1799,6 +1971,12 @@ if st.session_state.get("timetable_generated", False):
     if timetable_df.empty:
         st.warning("No timetable rows could be displayed.")
     else:
+        st.info(
+            "Each intake view displays only the courses assigned to that intake. "
+            "Course counts differ because each intake has its own curriculum. "
+            "Intake 42 currently contains 10 assigned courses."
+        )
+
         # Create tabs for Unified Global View and the four Intakes
         tabs = st.tabs([
             "🌐 Unified Global View",
@@ -1829,7 +2007,7 @@ if st.session_state.get("timetable_generated", False):
             
             st.dataframe(
                 timetable_df,
-                use_container_width=True,
+                width="stretch",
                 hide_index=True
             )
             
@@ -1845,7 +2023,7 @@ if st.session_state.get("timetable_generated", False):
             st.subheader("📚 Course Information Legend")
             global_legend_df = build_course_details(timetable_df, subjects_input)
             if not global_legend_df.empty:
-                st.dataframe(global_legend_df, use_container_width=True, hide_index=True)
+                st.dataframe(global_legend_df, width="stretch", hide_index=True)
             else:
                 st.info("No courses scheduled to build legend.")
             
@@ -1944,7 +2122,7 @@ if st.session_state.get("timetable_generated", False):
                     st.subheader("📚 Course Information Legend")
                     intake_legend_df = build_course_details(filtered_df, subjects_input)
                     if not intake_legend_df.empty:
-                        st.dataframe(intake_legend_df, use_container_width=True, hide_index=True)
+                        st.dataframe(intake_legend_df, width="stretch", hide_index=True)
                     else:
                         st.info("No courses scheduled to build legend.")
 
@@ -2029,7 +2207,7 @@ if st.session_state.get("timetable_generated", False):
 
         st.dataframe(
             history_df,
-            use_container_width=True,
+            width="stretch",
             hide_index=True
         )
 

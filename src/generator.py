@@ -217,6 +217,12 @@ def generate_random_timetable(
                         course_id
                     ].append(combination)
 
+    ts_col = "slot_id" if "slot_id" in timeslots.columns else "timeslot_id"
+    ts_start_mins = {
+        str(r[ts_col]).strip(): parse_time_to_minutes(r["start_time"])
+        for _, r in timeslots.iterrows()
+    }
+
     # ========================================================
     # CREATE ONE LECTURE FOR EACH SUBJECT
     # ========================================================
@@ -234,12 +240,10 @@ def generate_random_timetable(
         dur = float(course["duration_hours"]) if "duration_hours" in course.index else 1.0
         dur_min = int(dur * 60)
         
-        valid_ts_ids = []
-        for ts_id in timeslot_ids:
-            ts_row = timeslots[timeslots["slot_id"].astype(str) == str(ts_id)].iloc[0]
-            start_min = parse_time_to_minutes(ts_row["start_time"])
-            if start_min + dur_min <= 1020:
-                valid_ts_ids.append(ts_id)
+        valid_ts_ids = [
+            ts_id for ts_id in timeslot_ids
+            if ts_start_mins.get(str(ts_id).strip(), 0) + dur_min <= 1020
+        ]
                 
         if not valid_ts_ids:
             valid_ts_ids = timeslot_ids

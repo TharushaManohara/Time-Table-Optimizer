@@ -35,19 +35,22 @@ def calculate_soft_penalty(
     timeslots_dict = timetable.timeslots_dict
 
     # ========================================================
-    # SOFT CONSTRAINT 1: Morning Start-Time Preference (Gentle Tie-breakers)
+    # SOFT CONSTRAINT 1: Lunch Window Protection (12:00 - 12:30)
+    # & Balanced University Day Distribution
     #
-    # Preferred start time window (gentle tie-breakers):
-    # 08:00 - 08:30  -> strongest preference (0 points)
-    # 09:00 - 09:30  -> small penalty (1 point)
-    # 10:00 - 10:30  -> small penalty (2 points)
-    # 11:00 - 11:30  -> moderate penalty (3 points)
-    # 12:00 - 12:30  -> moderate penalty (4 points)
-    # 13:00 - 13:30  -> moderate penalty (5 points)
-    # 14:00 - 14:30  -> slightly higher penalty (6 points)
-    # 15:00 - 15:30  -> noticeably higher penalty (15 points)
-    # 16:00+         -> strong penalty (30 points)
+    # Ideal Windows:
+    # - Morning:   08:30 - 12:00  (0 penalty)
+    # - Afternoon: 12:30 - 15:30  (0 penalty)
+    # - Lunch:     12:00 - 12:30  (Strong penalty if overlapping)
+    #
+    # Discouraged:
+    # - Unnecessary 08:00 early starts (small penalty)
+    # - Lectures overlapping 12:00 - 12:30 lunch (strong penalty)
+    # - Late afternoon finishes after 16:30 (moderate penalty)
     # ========================================================
+
+    LUNCH_START_MIN = 720  # 12:00
+    LUNCH_END_MIN   = 750  # 12:30
 
     for entry in timetable.entries:
         slot = timeslots_dict.get(str(entry.timeslot_id).strip())
@@ -58,32 +61,26 @@ def calculate_soft_penalty(
         dur = float(c_meta.get("duration_hours", 1.0))
         
         start_min = parse_time_to_minutes(slot["start_time"])
-        
-        # Start-time preference
-        penalty = 0
-        if start_min <= 510:     # 08:00 - 08:30
-            penalty = 0
-        elif start_min <= 570:   # 09:00 - 09:30
-            penalty = 1
-        elif start_min <= 630:   # 10:00 - 10:30
-            penalty = 2
-        elif start_min <= 690:   # 11:00 - 11:30
-            penalty = 3
-        elif start_min <= 750:   # 12:00 - 12:30
-            penalty = 4
-        elif start_min <= 810:   # 13:00 - 13:30
-            penalty = 5
-        elif start_min <= 870:   # 14:00 - 14:30
-            penalty = 6
-        elif start_min <= 930:   # 15:00 - 15:30
-            penalty = 15
-        else:                    # 16:00+
-            penalty = 30
-            
-        # Avoid very late finishes (secondary soft penalty)
         end_min = start_min + int(dur * 60)
-        if end_min > 990:        # ends after 16:30 (e.g. 17:00)
-            penalty += 10
+        
+        penalty = 0
+
+        # 1. Lunch Protection: strongly discourage lectures overlapping 12:00 - 12:30
+        if start_min < LUNCH_END_MIN and end_min > LUNCH_START_MIN:
+            penalty += 50
+
+        # 2. Early morning start (08:00) tie-breaker: discourage starting at 08:00
+        if start_min < 510:  # 08:00
+            penalty += 2
+
+        # 3. Late afternoon starts & finishes
+        if start_min > 930:  # Starts at 16:00 or later
+            penalty += 12
+        elif start_min == 930:  # Starts at 15:30
+            penalty += 3
+
+        if end_min > 990:  # Finishes after 16:30
+            penalty += 15
             
         soft_penalty += penalty
 

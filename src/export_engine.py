@@ -53,18 +53,32 @@ def check_and_fallback_grid_params(filtered_df, grid_details, unique_time_strs, 
     _, grid_details, unique_time_strs = build_weekly_grid(filtered_df, timeslots_df, lunch_by_day)
     return grid_details, unique_time_strs, lunch_by_day, is_common
 
+from openpyxl.cell.cell import MergedCell
+
 def write_cell_block(ws, start_row, start_col, end_row, end_col, value, font, fill, alignment, border):
     """
     Populates values and styles to a range of cells, then merges them safely.
-    Values are only written to the top-left cell of the range.
-    No MergedCell values are assigned after merging.
+    Values are only written to the top-left cell of the range if it is not a MergedCell.
+    Never assigns .value or styles to MergedCell instances.
     """
+    top_left = ws.cell(row=start_row, column=start_col)
+    if not isinstance(top_left, MergedCell):
+        top_left.value = value
+        if font:
+            top_left.font = font
+        if fill:
+            top_left.fill = fill
+        if alignment:
+            top_left.alignment = alignment
+        if border:
+            top_left.border = border
+
     for r in range(start_row, end_row + 1):
         for c in range(start_col, end_col + 1):
             cell = ws.cell(row=r, column=c)
-            if r == start_row and c == start_col:
-                cell.value = value
-            else:
+            if isinstance(cell, MergedCell):
+                continue
+            if r != start_row or c != start_col:
                 cell.value = None
             if font:
                 cell.font = font
@@ -77,6 +91,8 @@ def write_cell_block(ws, start_row, start_col, end_row, end_col, value, font, fi
                 
     if end_row > start_row or end_col > start_col:
         ws.merge_cells(start_row=start_row, start_column=start_col, end_row=end_row, end_column=end_col)
+
+
 
 def generate_timetable_excel(filtered_df, grid_df, header_info=None, course_details_df=None, breaks_dict=None, grid_details=None, unique_time_strs=None, lunch_by_day=None, is_common_lunch=True):
     """

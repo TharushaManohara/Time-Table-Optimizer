@@ -1,11 +1,29 @@
 course_id,course_name,lecturer_id,group_id,student_count,duration_hours
-CS22023,Artificial Intelligence,L001,42_CS,28,2.0
-CS22993,Group Project in Software Development,L002,42_CS,28,3.0
-SE22013,Software Architecture,L003,42_CS,28,2.0
-SE22022,Software Project Management,L003,42_CS,28,2.0
-COE22012,Advanced Computer Architecture,L004,42_CE,24,2.0
-COE22023,Engineering Drawing,L005,42_CE,24,3.0
-COE22032,Computer Interfacing and Microprocessors,L006,42_CS,28,2.0
-CM22112,Numerical Methods,L007,42_CS,28,2.0
-CS22012,Advanced Data Structures and Algorithms,L008,42_CS,28,2.0
-DL4162,Research Writing Skills,L009,42_CS,28,1.5
+CS32042,Information Security,L010,"41_CS,41_SE,41_CE",75,2.0
+CS32092,Machine Learning,L010,"41_CS,41_SE,41_CE",75,2.0
+CM32051,Statistical Tools for Computing,L014,"41_CS,41_SE,41_CE",75,1.0
+CS32992,Independent Research Study,L008,"41_CS,41_SE,41_CE",75,2.0
+CS32012,Computer Graphics and Visualization,L012,"41_CS,41_SE",50,2.0
+CS32022,Automata Theory,L013,"41_CS,41_SE",50,2.0
+CS32032,Complex Systems and Agent Technology,L011,"41_CS,41_SE,41_CE",75,2.0
+CS32082,Natural Language Processing,L011,"41_CS,41_SE,41_CE",75,2.0
+CS22012,Advanced Data Structures and Algorithms,L008,"42_CS,42_SE,42_CE",82,2.0
+CS22023,Artificial Intelligence,L001,"42_CS,42_SE,42_CE",82,2.0
+CS22993,Group Project in Software Development,L002,"42_CS,42_SE,42_CE",82,3.0
+SE22013,Software Architecture,L003,"42_CS,42_SE",58,2.0
+SE22022,Software Project Management,L003,"42_CS,42_SE",58,2.0
+COE22012,Engineering Drawing,L005,42_CE,24,2.0
+COE22023,Advanced Computer Architecture,L004,42_CE,24,2.0
+COE22032,Computer Interfacing and Microprocessors,L006,"42_CS,42_SE,42_CE",82,2.0
+CM22112,Numerical Methods,L007,"42_CS,42_SE,42_CE",82,2.0
+DL4162,Research Writing Skills,L009,"42_CS,42_SE,42_CE",82,1.5
+CS12012,Web Development,L010,"43_CS,43_SE,43_CE",60,2.0
+CS12023,Object Oriented Programming,L008,"43_CS,43_SE,43_CE",60,2.0
+CS12033,Computer Networks,L015,"43_CS,43_SE,43_CE",60,2.0
+CS12041,Creative Media Tools,L012,"43_CS,43_SE,43_CE",60,2.0
+SE12012,Software Analysis and Modeling,L016,"43_CS,43_SE",40,2.0
+CM12052,Discrete Mathematics,L017,"43_CS,43_SE,43_CE",60,2.0
+COE12241,Fundamentals of Electronics,L018,"43_CS,43_SE,43_CE",60,2.0
+COE12022,Fundamentals of Electrical Engineering,L018,43_CE,20,2.0
+COE12992,Collaborative Hardware Project,L004,"43_CS,43_SE,43_CE",60,2.0
+DL2142,English: Advanced Study Skills for CS/SE/CE,L019,"43_CS,43_SE,43_CE",60,2.0
