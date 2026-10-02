@@ -36,17 +36,15 @@ def calculate_soft_penalty(
 
     # ========================================================
     # SOFT CONSTRAINT 1: Lunch Window Protection (12:00 - 12:30)
-    # & Balanced University Day Distribution
+    # & Graduated Early-Finishing Preference
     #
-    # Ideal Windows:
-    # - Morning:   08:30 - 12:00  (0 penalty)
-    # - Afternoon: 12:30 - 15:30  (0 penalty)
-    # - Lunch:     12:00 - 12:30  (Strong penalty if overlapping)
-    #
-    # Discouraged:
-    # - Unnecessary 08:00 early starts (small penalty)
-    # - Lectures overlapping 12:00 - 12:30 lunch (strong penalty)
-    # - Late afternoon finishes after 16:30 (moderate penalty)
+    # Preferences:
+    # 1. End time <= 14:30 (0 penalty) - Strongly preferred
+    # 2. 14:30 < End time <= 15:30 (Small penalty: +10)
+    # 3. 15:30 < End time <= 16:30 (Larger penalty: +35)
+    # 4. End time > 16:30 (Very large penalty: +100)
+    # 5. Lunch Break 12:00 - 12:30 protected (Overlap penalty: +100)
+    # 6. Unnecessary 08:00 start tie-breaker (+2)
     # ========================================================
 
     LUNCH_START_MIN = 720  # 12:00
@@ -67,20 +65,21 @@ def calculate_soft_penalty(
 
         # 1. Lunch Protection: strongly discourage lectures overlapping 12:00 - 12:30
         if start_min < LUNCH_END_MIN and end_min > LUNCH_START_MIN:
-            penalty += 50
+            penalty += 250
 
         # 2. Early morning start (08:00) tie-breaker: discourage starting at 08:00
         if start_min < 510:  # 08:00
             penalty += 2
 
-        # 3. Late afternoon starts & finishes
-        if start_min > 930:  # Starts at 16:00 or later
+        # 3. Graduated Early-Finishing Preference (based on lecture END TIME)
+        if end_min <= 870:      # Finishes by 14:30 (Ideal)
+            pass
+        elif end_min <= 930:    # Finishes by 15:30 (Acceptable for 3h or tight constraints)
             penalty += 12
-        elif start_min == 930:  # Starts at 15:30
-            penalty += 3
-
-        if end_min > 990:  # Finishes after 16:30
-            penalty += 15
+        elif end_min <= 990:    # Finishes by 16:30 (Discouraged)
+            penalty += 45
+        else:                   # Finishes after 16:30 (Strongly discouraged)
+            penalty += 120
             
         soft_penalty += penalty
 
