@@ -9,7 +9,8 @@ def generate_optimized_timetable(
     subject_mappings=None,
     intake_programs=None,
     population_size=50,
-    generations=100
+    generations=100,
+    progress_callback=None
 ):
     """
     Run the Genetic Algorithm and return:
@@ -90,6 +91,12 @@ def generate_optimized_timetable(
             best_ever_timetable = ga.copy_timetable(
                 ga.population[best_index]
             )
+
+        if progress_callback is not None:
+            try:
+                progress_callback(generation + 1, generations, best_fitness, best_ever_fitness)
+            except Exception:
+                pass
 
         # Create next generation
         ga.create_new_generation()
