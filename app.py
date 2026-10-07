@@ -476,12 +476,13 @@ def build_weekly_grid(filtered_df, timeslots_input, lunch_by_day):
 
 # SaaS Enterprise Dark-Palette Color Themes
 INTAKE_COLORS = {
-    "41": {"bg": "rgba(59, 130, 246, 0.12)", "border": "#3B82F6", "text": "#93C5FD", "tag": "#2563EB"},
-    "42": {"bg": "rgba(16, 185, 129, 0.12)", "border": "#10B981", "text": "#A7F3D0", "tag": "#059669"},
-    "43": {"bg": "rgba(245, 158, 11, 0.12)", "border": "#F59E0B", "text": "#FDE68A", "tag": "#D97706"},
-    "40": {"bg": "rgba(139, 92, 246, 0.12)", "border": "#8B5CF6", "text": "#DDD6FE", "tag": "#7C3AED"},
+    "41": {"bg": "rgba(59, 130, 246, 0.15)", "border": "#3B82F6", "text": "#93C5FD", "room_bg": "#1E3A8A", "room_color": "#BFDBFE"},
+    "42": {"bg": "rgba(16, 185, 129, 0.15)", "border": "#10B981", "text": "#A7F3D0", "room_bg": "#064E3B", "room_color": "#A7F3D0"},
+    "43": {"bg": "rgba(245, 158, 11, 0.15)", "border": "#F59E0B", "text": "#FDE68A", "room_bg": "#78350F", "room_color": "#FDE68A"},
+    "40": {"bg": "rgba(139, 92, 246, 0.15)", "border": "#8B5CF6", "text": "#DDD6FE", "room_bg": "#581C87", "room_color": "#DDD6FE"},
+    "shared": {"bg": "rgba(168, 85, 247, 0.18)", "border": "#A855F7", "text": "#E9D5FF", "room_bg": "#4C1D95", "room_color": "#E9D5FF"},
 }
-DEFAULT_COLOR = {"bg": "rgba(255, 255, 255, 0.04)", "border": "rgba(255, 255, 255, 0.1)", "text": "#E2E8F0", "tag": "#475569"}
+DEFAULT_COLOR = {"bg": "rgba(30, 41, 59, 0.5)", "border": "#475569", "text": "#CBD5E1", "room_bg": "#1E293B", "room_color": "#CBD5E1"}
 
 
 def _get_intake_from_content(text):
@@ -492,75 +493,96 @@ def _get_intake_from_content(text):
 
 
 def render_weekly_grid_html(grid_df, grid_details, unique_time_strs, lunch_by_day, is_common_lunch):
+    import html
     if grid_df.empty:
         st.info("No timetable grid data to render.")
         return
         
     days = list(grid_df.columns)
     
-    html = "<div style='overflow-x: auto; margin-top: 10px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 30px rgba(0,0,0,0.3);'>"
-    html += "<table style='width: 100%; border-collapse: separate; border-spacing: 0; font-family: inherit; background: #0E1626;'>"
-    html += "<thead><tr style='background: #131E35;'>"
-    html += "<th style='padding: 14px 16px; text-align: center; font-weight: 700; color: #94A3B8; font-size: 0.76rem; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); width: 140px;'>TIME</th>"
+    # Use single-line strings with NO leading indentation so Streamlit's Markdown parser
+    # does not treat lines with 4+ spaces as preformatted code blocks.
+    out = [
+        "<div style='overflow-x: auto; width: 100%; margin-top: 10px; margin-bottom: 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 30px rgba(0,0,0,0.3); background: #0B1020;'>",
+        "<table style='width: 100%; min-width: 1000px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-family: inherit; background: #0E1626;'>",
+        "<thead><tr style='background: #131E35;'>",
+        "<th style='padding: 14px 10px; text-align: center; font-weight: 700; color: #94A3B8; font-size: 0.74rem; letter-spacing: 1.2px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); width: 110px;'>TIME</th>"
+    ]
+    
     for col in days:
-        short_day = col[:3].upper()
-        html += f"<th style='padding: 14px 16px; text-align: center; font-weight: 700; color: #F8FAFC; font-size: 0.78rem; letter-spacing: 1.2px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); border-left: 1px solid rgba(255,255,255,0.05);'>{short_day} <span style='color: #64748B; font-weight: 500; font-size: 0.7rem;'>({col})</span></th>"
-    html += "</tr></thead><tbody>"
+        short_day = html.escape(col[:3].upper())
+        full_day = html.escape(col)
+        out.append(
+            f"<th style='padding: 14px 12px; text-align: center; font-weight: 700; color: #F8FAFC; font-size: 0.80rem; letter-spacing: 1.2px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); border-left: 1px solid rgba(255,255,255,0.06); width: calc((100% - 110px) / 5);'>{short_day} <span style='color: #64748B; font-weight: 500; font-size: 0.72rem;'>({full_day})</span></th>"
+        )
+    out.append("</tr></thead><tbody>")
     
     for row_idx, t_str in enumerate(unique_time_strs):
+        time_parts = [p.strip() for p in t_str.split("-")]
+        if len(time_parts) == 2:
+            time_display = f"{html.escape(time_parts[0])}<br><span style='color: #64748B; font-weight: 500;'>{html.escape(time_parts[1])}</span>"
+        else:
+            time_display = html.escape(t_str)
+
         if is_common_lunch and t_str == lunch_by_day.get("Monday"):
-            html += "<tr style='border-bottom: 1px solid rgba(255,255,255,0.05);'>"
-            html += f"<td style='padding: 12px; font-weight: 600; background: #111A2E; border-right: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; text-align: center; color: #94A3B8; font-size: 0.76rem; font-family: monospace;'>{t_str}</td>"
-            html += f"<td colspan='{len(days)}' style='padding: 14px; font-weight: 700; text-align: center; color: #34D399; background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.2) 50%, rgba(16, 185, 129, 0.1) 100%); border-bottom: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.84rem; letter-spacing: 3px;'>🍽️ COMMON LUNCH RECESS (12:00 — 12:30)</td>"
-            html += "</tr>"
+            out.append("<tr style='border-bottom: 1px solid rgba(255,255,255,0.05);'>")
+            out.append(f"<td style='padding: 10px 6px; font-weight: 600; background: #090E1A; border-right: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; text-align: center; color: #94A3B8; font-size: 0.73rem; font-family: monospace;'>{time_display}</td>")
+            out.append(f"<td colspan='{len(days)}' style='padding: 12px; font-weight: 700; text-align: center; color: #34D399; background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.22) 50%, rgba(16, 185, 129, 0.1) 100%); border-bottom: 1px solid rgba(16, 185, 129, 0.25); font-size: 0.82rem; letter-spacing: 2px;'>🍽️ COMMON LUNCH RECESS (12:00 — 12:30)</td>")
+            out.append("</tr>")
             continue
             
-        row_bg = "rgba(15, 23, 42, 0.6)" if row_idx % 2 == 0 else "rgba(19, 30, 53, 0.4)"
-        html += f"<tr style='background: {row_bg};'>"
-        html += f"<td style='padding: 12px; font-weight: 600; background: #111A2E; border-right: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; text-align: center; color: #94A3B8; font-size: 0.76rem; font-family: monospace;'>{t_str}</td>"
+        row_bg = "rgba(15, 23, 42, 0.65)" if row_idx % 2 == 0 else "rgba(19, 30, 53, 0.45)"
+        out.append(f"<tr style='background: {row_bg};'>")
+        out.append(f"<td style='padding: 8px 6px; font-weight: 600; background: #090E1A; border-right: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; text-align: center; color: #94A3B8; font-size: 0.73rem; font-family: monospace; vertical-align: middle;'>{time_display}</td>")
         
         for col in days:
             cell = grid_details.get((t_str, col), {"rowspan": 1, "text": "", "is_start": True, "is_lunch": False})
             
-            if not cell["is_start"]:
+            if not cell.get("is_start", True):
                 continue
                 
-            rowspan = cell["rowspan"]
-            text = cell["text"]
-            
+            rowspan = cell.get("rowspan", 1)
+            text = cell.get("text", "")
             rowspan_attr = f" rowspan='{rowspan}'" if rowspan > 1 else ""
             
-            if cell["is_lunch"]:
-                html += f"<td{rowspan_attr} style='padding: 12px; background: rgba(16, 185, 129, 0.12); border-left: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); color: #34D399; font-size: 0.78rem; text-align: center; font-weight: 700; letter-spacing: 1px;'>🍽️ LUNCH</td>"
+            if cell.get("is_lunch", False):
+                out.append(f"<td{rowspan_attr} style='padding: 10px; background: rgba(16, 185, 129, 0.1); border-left: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); color: #34D399; font-size: 0.76rem; text-align: center; font-weight: 700; letter-spacing: 1px; vertical-align: middle;'>🍽️ LUNCH</td>")
             elif text:
                 intake = _get_intake_from_content(text)
                 colors = INTAKE_COLORS.get(intake, DEFAULT_COLOR) if intake else DEFAULT_COLOR
                 
                 parts = text.split("\n")
-                subj_line = parts[0].replace("**", "") if len(parts) > 0 else ""
-                room_line = parts[1].replace("*", "") if len(parts) > 1 else ""
-                lect_line = parts[2] if len(parts) > 2 else ""
-                map_line = parts[3] if len(parts) > 3 else ""
+                subj_line = html.escape(parts[0].replace("**", "") if len(parts) > 0 else "")
+                room_line = html.escape(parts[1].replace("*", "") if len(parts) > 1 else "")
+                lect_line = html.escape(parts[2] if len(parts) > 2 else "")
+                map_line = html.escape(parts[3] if len(parts) > 3 else "")
                 
-                cell_inner = f"""
-                <div style='background: {colors["bg"]}; border: 1px solid {colors["border"]}; border-radius: 8px; padding: 10px 12px; height: 100%; box-shadow: 0 4px 14px rgba(0,0,0,0.25);'>
-                    <div style='display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;'>
-                        <span style='font-weight: 700; color: #FFFFFF; font-size: 0.84rem;'>{subj_line}</span>
-                        <span style='background: {colors["border"]}; color: #0B1120; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;'>{room_line}</span>
-                    </div>
-                    <div style='font-size: 0.74rem; color: #CBD5E1; font-weight: 500; margin-bottom: 4px;'>👨‍🏫 {lect_line}</div>
-                    <div style='font-size: 0.7rem; color: {colors["text"]}; font-weight: 600; opacity: 0.9;'>👥 {map_line}</div>
-                </div>
-                """
+                # Extract styling attributes cleanly before string interpolation
+                c_bg = colors['bg']
+                c_border = colors['border']
+                c_text = colors['text']
+                r_bg = colors.get('room_bg', '#1E293B')
+                r_col = colors.get('room_color', '#FFFFFF')
                 
-                style = "padding: 6px; border-left: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top;"
-                html += f"<td{rowspan_attr} style='{style}'>{cell_inner}</td>"
+                # Render single-line HTML with NO leading space indentation to avoid Markdown code-block interpretation
+                cell_card = (
+                    f"<div style='background: {c_bg}; border: 1px solid {c_border}; border-left: 3px solid {c_border}; border-radius: 8px; padding: 8px 10px; height: 100%; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; flex-direction: column; justify-content: space-between; gap: 4px;'>"
+                    f"<div style='display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;'>"
+                    f"<span style='font-weight: 700; color: #FFFFFF; font-size: 0.82rem; line-height: 1.25; word-break: break-word;'>{subj_line}</span>"
+                    f"<span style='background: {r_bg}; color: {r_col}; border: 1px solid {c_border}; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; white-space: nowrap;'>{room_line}</span>"
+                    f"</div>"
+                    f"<div style='font-size: 0.72rem; color: #CBD5E1; font-weight: 500; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' title='Lecturer: {lect_line}'>👨‍🏫 {lect_line}</div>"
+                    f"<div style='font-size: 0.68rem; color: {c_text}; font-weight: 600; opacity: 0.95; line-height: 1.2;' title='Cohorts: {map_line}'>👥 {map_line}</div>"
+                    f"</div>"
+                )
+                
+                out.append(f"<td{rowspan_attr} style='padding: 5px 6px; border-left: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; height: 100%;'>{cell_card}</td>")
             else:
-                html += f"<td style='padding: 10px; color: rgba(255,255,255,0.1); text-align: center; border-left: 1px solid rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05);'>—</td>"
-        html += "</tr>"
+                out.append("<td style='padding: 6px; color: rgba(255,255,255,0.08); text-align: center; border-left: 1px solid rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle;'>—</td>")
+        out.append("</tr>")
         
-    html += "</tbody></table></div>"
-    st.markdown(html, unsafe_allow_html=True)
+    out.append("</tbody></table></div>")
+    st.markdown("".join(out), unsafe_allow_html=True)
 
 
 def build_course_details(filtered_df, subjects_input):
@@ -911,20 +933,24 @@ with st.sidebar:
         st.session_state["current_page"] = "📊 Dashboard"
         
     if "_nav_target" in st.session_state and st.session_state["_nav_target"] in nav_options:
-        st.session_state["current_page"] = st.session_state.pop("_nav_target")
+        target_p = st.session_state.pop("_nav_target")
+        st.session_state["nav_radio_selection"] = target_p
+        st.session_state["current_page"] = target_p
         
     def _on_nav_change():
         st.session_state["current_page"] = st.session_state["nav_radio_selection"]
 
-    current_idx = nav_options.index(st.session_state["current_page"])
-    page = st.radio(
-        "Navigation Menu",
-        nav_options,
-        index=current_idx,
-        key="nav_radio_selection",
-        on_change=_on_nav_change,
-        label_visibility="collapsed"
-    )
+    radio_kwargs = {
+        "label": "Navigation Menu",
+        "options": nav_options,
+        "key": "nav_radio_selection",
+        "on_change": _on_nav_change,
+        "label_visibility": "collapsed"
+    }
+    if "nav_radio_selection" not in st.session_state:
+        radio_kwargs["index"] = nav_options.index(st.session_state["current_page"])
+        
+    page = st.radio(**radio_kwargs)
     
     st.markdown("<div style='height: 1px; background: rgba(255,255,255,0.06); margin: 20px 0;'></div>", unsafe_allow_html=True)
     
@@ -1386,14 +1412,27 @@ elif page == "⚙️ Optimization":
             type="primary"
         )
         if st.session_state.get("timetable_generated", False):
-            if st.button("🗑️ Reset Optimization State", use_container_width=True):
-                st.session_state["timetable_generated"] = False
-                st.session_state["best_timetable"] = None
-                st.session_state["best_fitness"] = None
-                st.session_state["fitness_history"] = []
-                st.session_state["rows"] = []
-                st.session_state["timetable_df"] = pd.DataFrame()
-                st.rerun()
+            if not st.session_state.get("confirm_reset_mode", False):
+                if st.button("🗑️ Reset Optimization State", use_container_width=True):
+                    st.session_state["confirm_reset_mode"] = True
+                    st.rerun()
+            else:
+                st.warning("⚠️ Discard current generated schedule?")
+                rc1, rc2 = st.columns(2)
+                with rc1:
+                    if st.button("✓ Confirm Reset", type="primary", use_container_width=True):
+                        st.session_state["timetable_generated"] = False
+                        st.session_state["best_timetable"] = None
+                        st.session_state["best_fitness"] = None
+                        st.session_state["fitness_history"] = []
+                        st.session_state["rows"] = []
+                        st.session_state["timetable_df"] = pd.DataFrame()
+                        st.session_state["confirm_reset_mode"] = False
+                        st.rerun()
+                with rc2:
+                    if st.button("Cancel", use_container_width=True):
+                        st.session_state["confirm_reset_mode"] = False
+                        st.rerun()
 
     if generate_clicked:
         doc_header_settings = {
@@ -1532,29 +1571,101 @@ elif page == "⚙️ Optimization":
                 st.session_state["rows"] = rows
                 st.session_state["timetable_df"] = timetable_df
                 
-                status.update(label="✓ Optimization Complete! 28 Conflict-Free Courses Scheduled.", state="complete", expanded=False)
-                
-                st.markdown(f"""
-                <div style='background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%); 
-                     border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 18px 22px; margin-top: 14px; margin-bottom: 12px;'>
-                    <div style='font-size: 1.15rem; font-weight: 800; color: #34D399; margin-bottom: 4px;'>✓ OPTIMIZATION COMPLETE</div>
-                    <div style='font-size: 0.86rem; color: #E2E8F0; font-weight: 600;'>
-                        28 Courses Scheduled &nbsp;•&nbsp; 0 Hard Constraint Violations &nbsp;•&nbsp; Final Fitness: {best_fitness:.1f}
-                    </div>
-                    <div style='font-size: 0.78rem; color: #94A3B8; margin-top: 4px;'>
-                        Navigating to timetable view...
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                import time
-                time.sleep(1.0)
-                st.session_state["_nav_target"] = "📅 Timetable"
+                status.update(label=f"✓ Optimization Complete! {len(timetable_df)} Conflict-Free Sessions Scheduled.", state="complete", expanded=False)
+                st.toast("⚡ Conflict-free timetable generated successfully!", icon="✅")
                 st.rerun()
                 
             except Exception as e:
                 status.update(label="❌ Generation Failed", state="error")
                 st.error(f"Error during evolutionary optimization: {str(e)}")
+
+    st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+
+    # ============================================================
+    # GENERATED TIMETABLE PREVIEW SECTION (OPTIMIZATION PAGE)
+    # ============================================================
+    if st.session_state.get("timetable_generated", False) and not st.session_state["timetable_df"].empty:
+        curr_df = st.session_state["timetable_df"]
+        curr_tt = st.session_state.get("best_timetable")
+        curr_fit = st.session_state.get("best_fitness", 0.0)
+        
+        # Calculate hard conflicts from validation object
+        hard_conflicts = 0
+        if curr_tt and hasattr(curr_tt, "validation") and isinstance(curr_tt.validation, dict):
+            val_data = curr_tt.validation
+            hard_conflicts = (
+                val_data.get("room_clashes", 0) +
+                val_data.get("lecturer_clashes", 0) +
+                val_data.get("student_group_clashes", 0) +
+                val_data.get("room_capacity_violations", 0)
+            )
+            
+        course_count = len(curr_df)
+        
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.7) 100%);
+                    border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px;'>
+            <div style='display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;'>
+                <div>
+                    <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 4px;'>
+                        <span style='background: rgba(16, 185, 129, 0.2); color: #34D399; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.4);'>
+                            ✓ GENERATED
+                        </span>
+                        <span style='background: rgba(59, 130, 246, 0.2); color: #93C5FD; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.4);'>
+                            {course_count} COURSES SCHEDULED
+                        </span>
+                        <span style='background: {"rgba(16, 185, 129, 0.2)" if hard_conflicts == 0 else "rgba(239, 68, 68, 0.2)"}; color: {"#34D399" if hard_conflicts == 0 else "#FCA5A5"}; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid {"rgba(16, 185, 129, 0.4)" if hard_conflicts == 0 else "rgba(239, 68, 68, 0.4)"};'>
+                            {hard_conflicts} HARD CONFLICTS
+                        </span>
+                        <span style='background: rgba(139, 92, 246, 0.2); color: #DDD6FE; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(139, 92, 246, 0.4);'>
+                            FITNESS: {curr_fit:.1f}
+                        </span>
+                    </div>
+                    <h3 style='margin: 0; font-size: 1.25rem; font-weight: 800; color: #FFFFFF;'>Generated Timetable Schedule</h3>
+                    <p style='margin: 2px 0 0 0; color: #94A3B8; font-size: 0.82rem;'>
+                        Constraint-compliant weekly teaching allocations synthesized by evolutionary search.
+                    </p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Sort logically: Day (Monday to Friday) followed by Start Time
+        day_order = {"Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4, "Friday": 5}
+        preview_df = curr_df.copy()
+        preview_df["_day_order"] = preview_df["Day"].map(day_order).fillna(99)
+        preview_df["_start_min"] = preview_df["Start Time"].apply(parse_time_to_minutes)
+        preview_df = preview_df.sort_values(by=["_day_order", "_start_min"]).drop(columns=["_day_order", "_start_min"])
+        
+        # Format clean columns: Day, Time, Course, Room, Lecturer, Cohorts
+        preview_display = pd.DataFrame({
+            "Day": preview_df["Day"],
+            "Time": preview_df["Start Time"] + " — " + preview_df["End Time"],
+            "Course": preview_df["Course"] + ": " + preview_df["Subject"],
+            "Room": preview_df["Room"],
+            "Lecturer": preview_df["Lecturer"],
+            "Cohorts": preview_df["Intake → Programs"]
+        })
+        
+        st.dataframe(preview_display, use_container_width=True, hide_index=True)
+        
+        # View Full Timetable CTA
+        c_btn1, c_btn2, c_btn3 = st.columns([1, 2, 1])
+        with c_btn2:
+            if st.button("📅 View Full Timetable Grid →", type="primary", use_container_width=True, key="opt_goto_tt"):
+                st.session_state["_nav_target"] = "📅 Timetable"
+                st.rerun()
+    else:
+        st.markdown("""
+        <div style='background: rgba(15, 23, 42, 0.5); border: 1px dashed rgba(255, 255, 255, 0.12);
+                    border-radius: 12px; padding: 28px 24px; text-align: center; margin-bottom: 16px;'>
+            <div style='font-size: 2rem; margin-bottom: 8px;'>📋</div>
+            <h4 style='color: #F8FAFC; margin: 0 0 6px 0; font-size: 1.05rem;'>No timetable generated yet</h4>
+            <p style='color: #94A3B8; font-size: 0.84rem; max-width: 520px; margin: 0 auto;'>
+                Configure the optimization parameters above and click <strong>⚡ Generate Conflict-Free Timetable</strong> to run the evolutionary algorithm and inspect the preview here.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ============================================================
