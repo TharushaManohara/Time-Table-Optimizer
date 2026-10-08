@@ -302,6 +302,195 @@ html, body, [class*="css"] {
     border: none !important;
     background: transparent !important;
 }
+
+/* Premium Timetable Calendar UI Styling */
+.tt-viewport {
+    overflow-x: auto;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 22px;
+    border-radius: 14px;
+    border: 1px solid #263247;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+    background: #0B1020;
+}
+.tt-table {
+    width: 100%;
+    min-width: 1080px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    background: #0B1020;
+}
+.tt-time-head {
+    width: 100px;
+    padding: 14px 8px;
+    text-align: center;
+    background: #111827;
+    border-bottom: 2px solid #263247;
+    border-right: 1px solid #263247;
+    color: #94A3B8;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+.tt-day-head {
+    width: calc((100% - 100px) / 5);
+    padding: 12px 10px;
+    text-align: center;
+    background: #111827;
+    border-bottom: 2px solid #263247;
+    border-left: 1px solid #263247;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.tt-day-main {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #F8FAFC;
+    letter-spacing: 1.2px;
+    line-height: 1.2;
+}
+.tt-day-sub {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+}
+.tt-time-cell {
+    padding: 0 6px;
+    height: 48px;
+    text-align: center;
+    background: #090E1A;
+    border-right: 1px solid #263247;
+    vertical-align: middle;
+}
+.tt-time-hour {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.80rem;
+    font-weight: 800;
+    color: #F8FAFC;
+    letter-spacing: 0.5px;
+    line-height: 1;
+}
+.tt-time-half {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: #64748B;
+    letter-spacing: 0.3px;
+    line-height: 1;
+}
+.tt-cell-empty {
+    padding: 0;
+    height: 48px;
+    border-left: 1px solid #263247;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+.tt-cell-filled {
+    padding: 4px 6px;
+    height: 48px;
+    border-left: 1px solid #263247;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+.tt-card {
+    background: #111827;
+    border: 1px solid #263247;
+    border-radius: 8px;
+    padding: 8px 10px;
+    height: 100%;
+    min-height: 40px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 5px;
+    position: relative;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.tt-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+.tt-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 6px;
+}
+.tt-card-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    line-height: 1.25;
+    word-break: break-word;
+    flex: 1;
+}
+.tt-room-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    letter-spacing: 0.5px;
+}
+.tt-meta-row {
+    font-size: 0.71rem;
+    color: #94A3B8;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.2;
+}
+.tt-time-row {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.70rem;
+    font-weight: 600;
+    color: #E2E8F0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.tt-cohort-tag {
+    font-size: 0.67rem;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 2px 4px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tt-lunch-row {
+    background: rgba(16, 185, 129, 0.05);
+    height: 38px;
+    border-top: 1px solid rgba(16, 185, 129, 0.18);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.18);
+}
+.tt-lunch-cell {
+    padding: 6px 12px;
+    height: 38px;
+    text-align: center;
+    color: #10B981;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -476,13 +665,13 @@ def build_weekly_grid(filtered_df, timeslots_input, lunch_by_day):
 
 # SaaS Enterprise Dark-Palette Color Themes
 INTAKE_COLORS = {
-    "41": {"bg": "rgba(59, 130, 246, 0.15)", "border": "#3B82F6", "text": "#93C5FD", "room_bg": "#1E3A8A", "room_color": "#BFDBFE"},
-    "42": {"bg": "rgba(16, 185, 129, 0.15)", "border": "#10B981", "text": "#A7F3D0", "room_bg": "#064E3B", "room_color": "#A7F3D0"},
-    "43": {"bg": "rgba(245, 158, 11, 0.15)", "border": "#F59E0B", "text": "#FDE68A", "room_bg": "#78350F", "room_color": "#FDE68A"},
-    "40": {"bg": "rgba(139, 92, 246, 0.15)", "border": "#8B5CF6", "text": "#DDD6FE", "room_bg": "#581C87", "room_color": "#DDD6FE"},
-    "shared": {"bg": "rgba(168, 85, 247, 0.18)", "border": "#A855F7", "text": "#E9D5FF", "room_bg": "#4C1D95", "room_color": "#E9D5FF"},
+    "41": {"accent": "#3B82F6", "bg": "rgba(59, 130, 246, 0.08)", "border": "rgba(59, 130, 246, 0.35)", "tag_text": "#93C5FD", "room_bg": "rgba(30, 58, 138, 0.45)", "room_border": "rgba(59, 130, 246, 0.4)", "room_color": "#BFDBFE"},
+    "42": {"accent": "#10B981", "bg": "rgba(16, 185, 129, 0.08)", "border": "rgba(16, 185, 129, 0.35)", "tag_text": "#A7F3D0", "room_bg": "rgba(6, 78, 59, 0.45)", "room_border": "rgba(16, 185, 129, 0.4)", "room_color": "#A7F3D0"},
+    "43": {"accent": "#F59E0B", "bg": "rgba(245, 158, 11, 0.08)", "border": "rgba(245, 158, 11, 0.35)", "tag_text": "#FDE68A", "room_bg": "rgba(120, 53, 15, 0.45)", "room_border": "rgba(245, 158, 11, 0.4)", "room_color": "#FDE68A"},
+    "40": {"accent": "#8B5CF6", "bg": "rgba(139, 92, 246, 0.08)", "border": "rgba(139, 92, 246, 0.35)", "tag_text": "#DDD6FE", "room_bg": "rgba(88, 28, 135, 0.45)", "room_border": "rgba(139, 92, 246, 0.4)", "room_color": "#DDD6FE"},
+    "shared": {"accent": "#A855F7", "bg": "rgba(168, 85, 247, 0.10)", "border": "rgba(168, 85, 247, 0.40)", "tag_text": "#E9D5FF", "room_bg": "rgba(76, 29, 149, 0.45)", "room_border": "rgba(168, 85, 247, 0.4)", "room_color": "#E9D5FF"},
 }
-DEFAULT_COLOR = {"bg": "rgba(30, 41, 59, 0.5)", "border": "#475569", "text": "#CBD5E1", "room_bg": "#1E293B", "room_color": "#CBD5E1"}
+DEFAULT_COLOR = {"accent": "#64748B", "bg": "rgba(30, 41, 59, 0.35)", "border": "rgba(100, 116, 139, 0.3)", "tag_text": "#CBD5E1", "room_bg": "rgba(30, 41, 59, 0.5)", "room_border": "rgba(100, 116, 139, 0.3)", "room_color": "#CBD5E1"}
 
 
 def _get_intake_from_content(text):
@@ -500,40 +689,43 @@ def render_weekly_grid_html(grid_df, grid_details, unique_time_strs, lunch_by_da
         
     days = list(grid_df.columns)
     
-    # Use single-line strings with NO leading indentation so Streamlit's Markdown parser
-    # does not treat lines with 4+ spaces as preformatted code blocks.
+    # Modern SaaS calendar layout with unindented single lines for pristine Markdown rendering
     out = [
-        "<div style='overflow-x: auto; width: 100%; margin-top: 10px; margin-bottom: 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 30px rgba(0,0,0,0.3); background: #0B1020;'>",
-        "<table style='width: 100%; min-width: 1000px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-family: inherit; background: #0E1626;'>",
-        "<thead><tr style='background: #131E35;'>",
-        "<th style='padding: 14px 10px; text-align: center; font-weight: 700; color: #94A3B8; font-size: 0.74rem; letter-spacing: 1.2px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); width: 110px;'>TIME</th>"
+        "<div class='tt-viewport'>",
+        "<table class='tt-table'>",
+        "<thead><tr>",
+        "<th class='tt-time-head'>TIME</th>"
     ]
     
     for col in days:
         short_day = html.escape(col[:3].upper())
         full_day = html.escape(col)
         out.append(
-            f"<th style='padding: 14px 12px; text-align: center; font-weight: 700; color: #F8FAFC; font-size: 0.80rem; letter-spacing: 1.2px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); border-left: 1px solid rgba(255,255,255,0.06); width: calc((100% - 110px) / 5);'>{short_day} <span style='color: #64748B; font-weight: 500; font-size: 0.72rem;'>({full_day})</span></th>"
+            f"<th class='tt-day-head'><span class='tt-day-main'>{short_day}</span><span class='tt-day-sub'>{full_day}</span></th>"
         )
     out.append("</tr></thead><tbody>")
     
     for row_idx, t_str in enumerate(unique_time_strs):
         time_parts = [p.strip() for p in t_str.split("-")]
-        if len(time_parts) == 2:
-            time_display = f"{html.escape(time_parts[0])}<br><span style='color: #64748B; font-weight: 500;'>{html.escape(time_parts[1])}</span>"
-        else:
-            time_display = html.escape(t_str)
+        t_start = time_parts[0] if len(time_parts) > 0 else t_str
+        
+        # Distinguish top-of-hour rows (stronger boundary & bold label) vs half-hour rows (subtle boundary & lighter label)
+        is_hour_mark = t_start.endswith(":00")
+        row_border_bottom = "1px solid #263247" if is_hour_mark else "1px solid rgba(38, 50, 71, 0.45)"
+        
+        time_label_class = "tt-time-hour" if is_hour_mark else "tt-time-half"
+        time_display = f"<div class='{time_label_class}'>{html.escape(t_start)}</div>"
 
         if is_common_lunch and t_str == lunch_by_day.get("Monday"):
-            out.append("<tr style='border-bottom: 1px solid rgba(255,255,255,0.05);'>")
-            out.append(f"<td style='padding: 10px 6px; font-weight: 600; background: #090E1A; border-right: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; text-align: center; color: #94A3B8; font-size: 0.73rem; font-family: monospace;'>{time_display}</td>")
-            out.append(f"<td colspan='{len(days)}' style='padding: 12px; font-weight: 700; text-align: center; color: #34D399; background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.22) 50%, rgba(16, 185, 129, 0.1) 100%); border-bottom: 1px solid rgba(16, 185, 129, 0.25); font-size: 0.82rem; letter-spacing: 2px;'>🍽️ COMMON LUNCH RECESS (12:00 — 12:30)</td>")
+            out.append(f"<tr class='tt-lunch-row' style='border-bottom: {row_border_bottom};'>")
+            out.append(f"<td class='tt-time-cell' style='border-bottom: {row_border_bottom};'>{time_display}</td>")
+            out.append(f"<td colspan='{len(days)}' class='tt-lunch-cell' style='border-bottom: {row_border_bottom};'>🍽️ COMMON LUNCH BREAK · 12:00 — 12:30</td>")
             out.append("</tr>")
             continue
             
-        row_bg = "rgba(15, 23, 42, 0.65)" if row_idx % 2 == 0 else "rgba(19, 30, 53, 0.45)"
-        out.append(f"<tr style='background: {row_bg};'>")
-        out.append(f"<td style='padding: 8px 6px; font-weight: 600; background: #090E1A; border-right: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; text-align: center; color: #94A3B8; font-size: 0.73rem; font-family: monospace; vertical-align: middle;'>{time_display}</td>")
+        row_bg = "#0B1020" if row_idx % 2 == 0 else "#0E1528"
+        out.append(f"<tr style='background: {row_bg}; border-bottom: {row_border_bottom};'>")
+        out.append(f"<td class='tt-time-cell' style='border-bottom: {row_border_bottom};'>{time_display}</td>")
         
         for col in days:
             cell = grid_details.get((t_str, col), {"rowspan": 1, "text": "", "is_start": True, "is_lunch": False})
@@ -546,10 +738,16 @@ def render_weekly_grid_html(grid_df, grid_details, unique_time_strs, lunch_by_da
             rowspan_attr = f" rowspan='{rowspan}'" if rowspan > 1 else ""
             
             if cell.get("is_lunch", False):
-                out.append(f"<td{rowspan_attr} style='padding: 10px; background: rgba(16, 185, 129, 0.1); border-left: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); color: #34D399; font-size: 0.76rem; text-align: center; font-weight: 700; letter-spacing: 1px; vertical-align: middle;'>🍽️ LUNCH</td>")
+                out.append(f"<td{rowspan_attr} class='tt-lunch-cell' style='border-left: 1px solid #263247; border-bottom: {row_border_bottom}; font-size: 0.72rem; padding: 6px;'>🍽️ LUNCH</td>")
             elif text:
                 intake = _get_intake_from_content(text)
-                colors = INTAKE_COLORS.get(intake, DEFAULT_COLOR) if intake else DEFAULT_COLOR
+                
+                # Check shared status
+                is_shared = "|" in text or ("41:" in text and "42:" in text)
+                if is_shared and "shared" in INTAKE_COLORS:
+                    colors = INTAKE_COLORS["shared"]
+                else:
+                    colors = INTAKE_COLORS.get(intake, DEFAULT_COLOR) if intake else DEFAULT_COLOR
                 
                 parts = text.split("\n")
                 subj_line = html.escape(parts[0].replace("**", "") if len(parts) > 0 else "")
@@ -557,28 +755,45 @@ def render_weekly_grid_html(grid_df, grid_details, unique_time_strs, lunch_by_da
                 lect_line = html.escape(parts[2] if len(parts) > 2 else "")
                 map_line = html.escape(parts[3] if len(parts) > 3 else "")
                 
-                # Extract styling attributes cleanly before string interpolation
-                c_bg = colors['bg']
-                c_border = colors['border']
-                c_text = colors['text']
+                # Clean up cohort string: "42: CE, CS, SE" -> "42 · CE · CS · SE"
+                clean_cohort = map_line.replace(": ", " · ").replace(", ", " · ")
+                if is_shared:
+                    cohort_badge_text = f"SHARED · {clean_cohort}"
+                else:
+                    cohort_badge_text = clean_cohort
+                
+                c_accent = colors.get('accent', '#3B82F6')
+                c_bg = colors.get('bg', 'rgba(17, 24, 39, 0.95)')
+                c_border = colors.get('border', '#263247')
+                c_tag_text = colors.get('tag_text', '#CBD5E1')
                 r_bg = colors.get('room_bg', '#1E293B')
+                r_border = colors.get('room_border', 'rgba(255, 255, 255, 0.15)')
                 r_col = colors.get('room_color', '#FFFFFF')
                 
-                # Render single-line HTML with NO leading space indentation to avoid Markdown code-block interpretation
+                # Professional Card Architecture:
+                # 1. Left border accent
+                # 2. Header: Title (boldest) + Room Badge (compact top-right)
+                # 3. Meta row: Time slot (semi-mono) + Lecturer
+                # 4. Footer: Clean cohort tag
                 cell_card = (
-                    f"<div style='background: {c_bg}; border: 1px solid {c_border}; border-left: 3px solid {c_border}; border-radius: 8px; padding: 8px 10px; height: 100%; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; flex-direction: column; justify-content: space-between; gap: 4px;'>"
-                    f"<div style='display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;'>"
-                    f"<span style='font-weight: 700; color: #FFFFFF; font-size: 0.82rem; line-height: 1.25; word-break: break-word;'>{subj_line}</span>"
-                    f"<span style='background: {r_bg}; color: {r_col}; border: 1px solid {c_border}; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; white-space: nowrap;'>{room_line}</span>"
+                    f"<div class='tt-card' style='background: {c_bg}; border-color: {c_border}; border-left: 3.5px solid {c_accent};'>"
+                    f"<div class='tt-card-head'>"
+                    f"<div class='tt-card-title'>{subj_line}</div>"
+                    f"<span class='tt-room-badge' style='background: {r_bg}; border-color: {r_border}; color: {r_col};'>{room_line}</span>"
                     f"</div>"
-                    f"<div style='font-size: 0.72rem; color: #CBD5E1; font-weight: 500; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' title='Lecturer: {lect_line}'>👨‍🏫 {lect_line}</div>"
-                    f"<div style='font-size: 0.68rem; color: {c_text}; font-weight: 600; opacity: 0.95; line-height: 1.2;' title='Cohorts: {map_line}'>👥 {map_line}</div>"
+                    f"<div class='tt-meta-row'>"
+                    f"<span class='tt-time-row'>◷ {html.escape(t_start)}</span>"
+                    f"<span style='color: #64748B;'>·</span>"
+                    f"<span style='white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' title='Lecturer: {lect_line}'>👨‍🏫 {lect_line}</span>"
+                    f"</div>"
+                    f"<div class='tt-cohort-tag' style='color: {c_tag_text};' title='Cohorts: {map_line}'>👥 {cohort_badge_text}</div>"
                     f"</div>"
                 )
                 
-                out.append(f"<td{rowspan_attr} style='padding: 5px 6px; border-left: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; height: 100%;'>{cell_card}</td>")
+                out.append(f"<td{rowspan_attr} class='tt-cell-filled' style='border-bottom: {row_border_bottom};'>{cell_card}</td>")
             else:
-                out.append("<td style='padding: 6px; color: rgba(255,255,255,0.08); text-align: center; border-left: 1px solid rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle;'>—</td>")
+                # Clean empty cell without visible noisy dash characters
+                out.append(f"<td class='tt-cell-empty' style='border-bottom: {row_border_bottom};'></td>")
         out.append("</tr>")
         
     out.append("</tbody></table></div>")
@@ -1701,46 +1916,72 @@ elif page == "📅 Timetable":
             "validity_period": "10.08.2026 - 14.08.2026",
         })
         
+        total_sessions = len(timetable_df)
+        
+        # Calculate hard conflicts from validation object
+        hard_conflicts = 0
+        if best_timetable and hasattr(best_timetable, "validation") and isinstance(best_timetable.validation, dict):
+            val_data = best_timetable.validation
+            hard_conflicts = (
+                val_data.get("room_clashes", 0) +
+                val_data.get("lecturer_clashes", 0) +
+                val_data.get("student_group_clashes", 0) +
+                val_data.get("room_capacity_violations", 0)
+            )
+        
+        # Calculate dynamic subject counts per intake
+        intake_subject_counts = {}
+        for iv in ["41", "42", "43", "40"]:
+            cnt = len(timetable_df[timetable_df["Intake"].apply(lambda v, target=iv: False if pd.isna(v) or not v else target in [x.strip() for x in str(v).split(",")])])
+            intake_subject_counts[iv] = cnt
+
         st.markdown(f"""
-        <div class="hero-container" style='margin-bottom: 20px;'>
-            <div>
-                <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 4px;'>
-                    <span class="badge-pill badge-success">✓ 0 HARD CLASHES</span>
-                    <span class="badge-pill badge-ai">FITNESS: {fitness_val:.1f}</span>
-                    <span class="badge-pill badge-ai">28 COURSES SCHEDULED</span>
+        <div style='background: #111827; border: 1px solid #263247; border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);'>
+            <div style='display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;'>
+                <div>
+                    <div style='font-size: 0.70rem; font-weight: 800; letter-spacing: 1.5px; color: #10B981; text-transform: uppercase;'>TIMETABLE · WEEKLY ACADEMIC SCHEDULE</div>
+                    <h2 style='margin: 4px 0 2px 0; font-size: 1.45rem; font-weight: 800; color: #F8FAFC;'>{doc_headers.get('university_name', 'University Timetable')}</h2>
+                    <div style='font-size: 0.82rem; color: #94A3B8;'>
+                        {doc_headers.get('faculty_name', '')} · {doc_headers.get('week_name', '')} ({doc_headers.get('validity_period', '')})
+                    </div>
                 </div>
-                <h1 style='margin: 0; font-size: 1.6rem; font-weight: 800; color: #FFFFFF;'>{doc_headers.get('university_name', 'University Timetable')}</h1>
-                <p style='margin: 2px 0 0 0; color: #94A3B8; font-size: 0.88rem;'>
-                    {doc_headers.get('faculty_name', '')} · {doc_headers.get('week_name', '')} ({doc_headers.get('validity_period', '')})
-                </p>
-            </div>
-            <div>
-                <span style='background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6EE7B7; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700;'>
-                    PROD SCHEDULE
-                </span>
+                <div style='display: flex; align-items: center; gap: 8px; flex-wrap: wrap;'>
+                    <span style='background: #0B1020; border: 1px solid #263247; color: #F8FAFC; padding: 6px 12px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; font-family: monospace; letter-spacing: 0.5px;'>
+                        📅 MON — FRI
+                    </span>
+                    <span style='background: #0B1020; border: 1px solid #263247; color: #F8FAFC; padding: 6px 12px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; font-family: monospace; letter-spacing: 0.5px;'>
+                        ⏰ 08:00 — 17:00
+                    </span>
+                    <span style='background: #0B1020; border: 1px solid #263247; color: #38BDF8; padding: 6px 12px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; font-family: monospace; letter-spacing: 0.5px;'>
+                        ⚡ {total_sessions} SESSIONS
+                    </span>
+                    <span style='background: {"rgba(16, 185, 129, 0.15)" if hard_conflicts == 0 else "rgba(239, 68, 68, 0.15)"}; border: 1px solid {"rgba(16, 185, 129, 0.35)" if hard_conflicts == 0 else "rgba(239, 68, 68, 0.35)"}; color: {"#34D399" if hard_conflicts == 0 else "#F87171"}; padding: 6px 12px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.5px;'>
+                        {"✓ 0 HARD CONFLICTS" if hard_conflicts == 0 else f"⚠ {hard_conflicts} CONFLICTS"}
+                    </span>
+                </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
         
         tt_tabs = st.tabs([
-            "🌐 Unified Enterprise Grid",
-            "📅 Intake 41 (8 Subjects)",
-            "📅 Intake 42 (10 Subjects)",
-            "📅 Intake 43 (10 Subjects)",
-            "📅 Intake 40 (0 Subjects)"
+            "🌐 All Intakes",
+            f"41 · {intake_subject_counts['41']} Subjects",
+            f"42 · {intake_subject_counts['42']} Subjects",
+            f"43 · {intake_subject_counts['43']} Subjects",
+            f"40 · {intake_subject_counts['40']} Subjects"
         ])
         
         # 1. Unified Grid
         with tt_tabs[0]:
-            # Filter bar
+            # Compact Filter Toolbar
             with st.expander("🔍 Filter Timetable by Room, Lecturer, or Day", expanded=False):
                 f_c1, f_c2, f_c3 = st.columns(3)
                 with f_c1:
-                    day_filter = st.multiselect("Day", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], key="u_day_f")
+                    room_filter = st.multiselect("Room", sorted(timetable_df["Room"].unique().tolist()), placeholder="All rooms", key="u_rm_f")
                 with f_c2:
-                    room_filter = st.multiselect("Venue / Room", sorted(timetable_df["Room"].unique().tolist()), key="u_rm_f")
+                    lect_filter = st.multiselect("Lecturer", sorted(timetable_df["Lecturer"].unique().tolist()), placeholder="All lecturers", key="u_lec_f")
                 with f_c3:
-                    lect_filter = st.multiselect("Academic Staff", sorted(timetable_df["Lecturer"].unique().tolist()), key="u_lec_f")
+                    day_filter = st.multiselect("Day", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], placeholder="All days", key="u_day_f")
             
             filtered_view = timetable_df.copy()
             if day_filter:
@@ -1749,6 +1990,10 @@ elif page == "📅 Timetable":
                 filtered_view = filtered_view[filtered_view["Room"].isin(room_filter)]
             if lect_filter:
                 filtered_view = filtered_view[filtered_view["Lecturer"].isin(lect_filter)]
+            
+            # Subtle active filter session indicator
+            if len(filtered_view) != len(timetable_df):
+                st.markdown(f"<div style='font-size: 0.76rem; color: #94A3B8; margin: 4px 0 8px 4px;'>Showing <strong>{len(filtered_view)}</strong> of {len(timetable_df)} scheduled sessions</div>", unsafe_allow_html=True)
                 
             course_info_dict = best_timetable.course_info if hasattr(best_timetable, "course_info") else {}
             lunch_by_day_g, is_common_g = find_lunch_slots_for_week(filtered_view, timeslots, course_info_dict)
