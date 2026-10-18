@@ -1716,6 +1716,32 @@ elif page == "⚙️ Optimization":
     </div>
     """, unsafe_allow_html=True)
     
+    # Active Dataset Verification Badge Banner
+    current_courses = st.session_state.get("active_subjects", default_subjects)
+    current_venues = st.session_state.get("active_rooms", rooms)
+    current_staff = st.session_state.get("active_lecturers", lecturers)
+    is_custom_data = len(current_courses) != len(default_subjects) or not current_courses["course_id"].equals(default_subjects["course_id"])
+    
+    badge_label = "CUSTOM UPLOADED DATASET" if is_custom_data else "OFFICIAL UNIVERSITY DATASET"
+    badge_style = "border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08);" if is_custom_data else "border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.08);"
+    badge_color = "#34D399" if is_custom_data else "#818CF8"
+    
+    st.markdown(f"""
+    <div style='{badge_style} border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;'>
+        <div>
+            <span style='color: {badge_color}; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;'>ACTIVE INPUT SOURCE: {badge_label}</span>
+            <div style='color: #F8FAFC; font-size: 1.05rem; font-weight: 700; margin-top: 2px;'>
+                Ready to synthesize: <span style='color: #60A5FA;'>{len(current_courses)} Courses</span> &bull; <span style='color: #34D399;'>{len(current_venues)} Venues</span> &bull; <span style='color: #FBBF24;'>{len(current_staff)} Lecturers</span>
+            </div>
+        </div>
+        <div>
+            <span style='background: rgba(255,255,255,0.06); color: #CBD5E1; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-family: monospace;'>
+                Live in Memory
+            </span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     # Teaching Constraints Overview
     st.markdown("<h4 style='color: #FFFFFF; margin-bottom: 12px;'>📋 Active Teaching Soft & Hard Constraints</h4>", unsafe_allow_html=True)
     tc1, tc2, tc3 = st.columns(3)
