@@ -1552,7 +1552,7 @@ elif page == "📁 Data Management":
             st.rerun()
     
     # Tab 1: Subjects Master
-    with data_tab[0]:
+    with data_tab[1]:
         st.markdown("<h4 style='color: #FFFFFF; margin-bottom: 4px;'>📚 Official Course Catalog</h4>", unsafe_allow_html=True)
         st.caption("Active university course definitions for Intakes 41, 42, and 43.")
         
