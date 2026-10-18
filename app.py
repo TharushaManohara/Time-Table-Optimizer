@@ -1428,6 +1428,42 @@ elif page == "📁 Data Management":
         </p>
         """, unsafe_allow_html=True)
 
+        # Academic Cycle / Semester Folder Selector
+        st.markdown("<div style='background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+        st.markdown("<h5 style='color: #93C5FD; margin: 0 0 6px 0; font-size: 0.92rem; text-transform: uppercase; letter-spacing: 0.6px;'>📁 Select Academic Cycle / Semester Target</h5>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #94A3B8; font-size: 0.82rem; margin-bottom: 12px;'>Choose the semester cycle. When CSV files are uploaded, a dedicated archive folder will be automatically created on your laptop storage (e.g. <code>data/archive/2026_2nd_half/</code>) preserving previous semesters.</p>", unsafe_allow_html=True)
+        
+        c_sel1, c_sel2 = st.columns([1.5, 1])
+        with c_sel1:
+            preset_cycles = [
+                "2026 2nd half (Semester II)",
+                "2026 1st half (Semester I)",
+                "2027 1st half (Semester I)",
+                "2027 2nd half (Semester II)",
+                "Custom Cycle Name..."
+            ]
+            selected_cycle = st.selectbox("Academic Period", options=preset_cycles, index=0)
+            if selected_cycle == "Custom Cycle Name...":
+                cycle_name_clean = st.text_input("Enter Custom Cycle Name", value="2026_2nd_half")
+            else:
+                cycle_name_clean = selected_cycle.split(" (")[0].strip().replace(" ", "_")
+        with c_sel2:
+            import os
+            archive_target_dir = os.path.join("data", "archive", cycle_name_clean)
+            st.markdown(f"""
+            <div style='margin-top: 26px; padding: 10px 14px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.15);'>
+                <div style='font-size: 0.70rem; color: #64748B; text-transform: uppercase;'>LOCAL STORAGE FOLDER</div>
+                <div style='font-family: monospace; font-size: 0.84rem; color: #38BDF8; font-weight: 600;'>{archive_target_dir}/</div>
+            </div>
+            """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        # Ensure local archive target directory exists
+        try:
+            os.makedirs(archive_target_dir, exist_ok=True)
+        except Exception:
+            pass
+
         up_col1, up_col2 = st.columns(2)
         
         with up_col1:
@@ -1457,7 +1493,12 @@ elif page == "📁 Data Management":
                             if "course_type" not in df_c.columns:
                                 df_c["course_type"] = "C"
                             st.session_state["active_subjects"] = df_c
-                            st.success(f"✓ Loaded {len(df_c)} courses successfully!")
+                            
+                            # Automatically save copy to laptop storage folder
+                            save_path = os.path.join(archive_target_dir, "courses.csv")
+                            df_c.to_csv(save_path, index=False)
+                            
+                            st.success(f"✓ Loaded {len(df_c)} courses & saved to storage folder: `{archive_target_dir}/courses.csv`")
                             st.dataframe(df_c.head(3), use_container_width=True, hide_index=True)
                         else:
                             st.error(f"Missing required columns: {req_cols - set(df_c.columns)}")
@@ -1482,7 +1523,12 @@ elif page == "📁 Data Management":
                             if "room_name" not in df_r.columns:
                                 df_r["room_name"] = df_r["room_id"]
                             st.session_state["active_rooms"] = df_r
-                            st.success(f"✓ Loaded {len(df_r)} venues successfully!")
+                            
+                            # Automatically save copy to laptop storage folder
+                            save_path = os.path.join(archive_target_dir, "rooms.csv")
+                            df_r.to_csv(save_path, index=False)
+                            
+                            st.success(f"✓ Loaded {len(df_r)} venues & saved to storage folder: `{archive_target_dir}/rooms.csv`")
                             st.dataframe(df_r.head(3), use_container_width=True, hide_index=True)
                         else:
                             st.error("Rooms CSV must contain 'room_id' and 'capacity'.")
@@ -1508,7 +1554,12 @@ elif page == "📁 Data Management":
                             if "lecturer_name" not in df_l.columns:
                                 df_l["lecturer_name"] = df_l["lecturer_id"]
                             st.session_state["active_lecturers"] = df_l
-                            st.success(f"✓ Loaded {len(df_l)} lecturers successfully!")
+                            
+                            # Automatically save copy to laptop storage folder
+                            save_path = os.path.join(archive_target_dir, "lecturers.csv")
+                            df_l.to_csv(save_path, index=False)
+                            
+                            st.success(f"✓ Loaded {len(df_l)} lecturers & saved to storage folder: `{archive_target_dir}/lecturers.csv`")
                             st.dataframe(df_l.head(3), use_container_width=True, hide_index=True)
                         else:
                             st.error("Lecturers CSV must contain 'lecturer_id'.")
@@ -1533,7 +1584,12 @@ elif page == "📁 Data Management":
                             if "group_id" not in df_g.columns:
                                 df_g["group_id"] = df_g["intake_id"].astype(str) + "_" + df_g["program_id"].astype(str)
                             st.session_state["active_intake_programs"] = df_g
-                            st.success(f"✓ Loaded {len(df_g)} cohort groups successfully!")
+                            
+                            # Automatically save copy to laptop storage folder
+                            save_path = os.path.join(archive_target_dir, "student_groups.csv")
+                            df_g.to_csv(save_path, index=False)
+                            
+                            st.success(f"✓ Loaded {len(df_g)} cohort groups & saved to storage folder: `{archive_target_dir}/student_groups.csv`")
                             st.dataframe(df_g.head(3), use_container_width=True, hide_index=True)
                         else:
                             st.error("Cohorts CSV must contain 'intake_id', 'program_id', and 'student_count'.")
