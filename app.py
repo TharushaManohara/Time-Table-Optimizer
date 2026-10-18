@@ -1113,6 +1113,18 @@ if "rows" not in st.session_state:
 if "timetable_df" not in st.session_state:
     st.session_state["timetable_df"] = pd.DataFrame()
 
+# Active datasets initialized in session_state for dynamic CSV upload & editing
+if "active_subjects" not in st.session_state:
+    st.session_state["active_subjects"] = default_subjects.copy()
+if "active_subject_groups" not in st.session_state:
+    st.session_state["active_subject_groups"] = default_subject_groups.copy()
+if "active_rooms" not in st.session_state:
+    st.session_state["active_rooms"] = rooms.copy()
+if "active_lecturers" not in st.session_state:
+    st.session_state["active_lecturers"] = lecturers.copy()
+if "active_intake_programs" not in st.session_state:
+    st.session_state["active_intake_programs"] = default_intake_programs.copy()
+
 
 # ============================================================
 # SIDEBAR (REFINED SAAS NAVIGATION)
@@ -1397,6 +1409,7 @@ elif page == "📁 Data Management":
     """, unsafe_allow_html=True)
     
     data_tab = st.tabs([
+        "📤 CSV Upload Center",
         "📚 Subjects Master",
         "🔗 Shared Cohort Mapping",
         "🎓 Academic Framework",
@@ -1405,21 +1418,157 @@ elif page == "📁 Data Management":
         "⏰ Timeslot Grid"
     ])
     
+    # Tab 0: CSV Upload Center
+    with data_tab[0]:
+        st.markdown("<h4 style='color: #FFFFFF; margin-bottom: 6px;'>📤 Upload Semester CSV Datasets</h4>", unsafe_allow_html=True)
+        st.markdown("""
+        <p style='color: #94A3B8; font-size: 0.88rem; margin-bottom: 16px;'>
+            Transition seamlessly between academic semesters by uploading custom CSV files. 
+            The system validates required columns, automatically syncs with the optimizer, and immediately updates timetable generation.
+        </p>
+        """, unsafe_allow_html=True)
+
+        up_col1, up_col2 = st.columns(2)
+        
+        with up_col1:
+            # 1. Courses Upload
+            with st.expander("📘 1. Upload Courses / Subjects Catalog", expanded=True):
+                st.markdown("""
+                <div style='font-size: 0.78rem; color: #94A3B8; margin-bottom: 8px;'>
+                    <b>Required CSV Columns:</b> <code>course_id</code>, <code>subject_name</code>, <code>lecturer_id</code>, <code>duration_hours</code>, <code>credits</code><br>
+                    <i>Optional:</i> <code>assessment_type</code> (GPA/NGPA), <code>course_type</code> (C/E)
+                </div>
+                """, unsafe_allow_html=True)
+                sample_courses_csv = "course_id,subject_name,lecturer_id,duration_hours,credits,assessment_type,course_type\nCS41012,Cloud Computing,L001,2.0,2,GPA,C\nCS41023,Deep Learning,L010,2.0,3,GPA,C\nCS41993,Final Year Project,L002,3.0,3,GPA,C"
+                st.download_button("📥 Download Courses CSV Template", data=sample_courses_csv, file_name="courses_template.csv", mime="text/csv", use_container_width=True)
+                
+                uploaded_courses = st.file_uploader("Upload Courses CSV", type=["csv"], key="uploader_courses")
+                if uploaded_courses is not None:
+                    try:
+                        df_c = pd.read_csv(uploaded_courses)
+                        req_cols = {"course_id", "subject_name", "lecturer_id"}
+                        if req_cols.issubset(df_c.columns):
+                            if "duration_hours" not in df_c.columns:
+                                df_c["duration_hours"] = 2.0
+                            if "credits" not in df_c.columns:
+                                df_c["credits"] = 2
+                            if "assessment_type" not in df_c.columns:
+                                df_c["assessment_type"] = "GPA"
+                            if "course_type" not in df_c.columns:
+                                df_c["course_type"] = "C"
+                            st.session_state["active_subjects"] = df_c
+                            st.success(f"✓ Loaded {len(df_c)} courses successfully!")
+                            st.dataframe(df_c.head(3), use_container_width=True, hide_index=True)
+                        else:
+                            st.error(f"Missing required columns: {req_cols - set(df_c.columns)}")
+                    except Exception as e:
+                        st.error(f"Error parsing CSV: {e}")
+
+            # 2. Rooms / Venues Upload
+            with st.expander("🏫 2. Upload Teaching Venues & Laboratories", expanded=False):
+                st.markdown("""
+                <div style='font-size: 0.78rem; color: #94A3B8; margin-bottom: 8px;'>
+                    <b>Required CSV Columns:</b> <code>room_id</code>, <code>room_name</code>, <code>capacity</code>
+                </div>
+                """, unsafe_allow_html=True)
+                sample_rooms_csv = "room_id,room_name,capacity\nLT-A,Lecture Theater A,150\nFGS_3-1,FGS Hall 3-1,100\nNetwork_Lab,Networking Lab,40"
+                st.download_button("📥 Download Rooms CSV Template", data=sample_rooms_csv, file_name="rooms_template.csv", mime="text/csv", use_container_width=True)
+                
+                uploaded_rooms = st.file_uploader("Upload Rooms CSV", type=["csv"], key="uploader_rooms")
+                if uploaded_rooms is not None:
+                    try:
+                        df_r = pd.read_csv(uploaded_rooms)
+                        if {"room_id", "capacity"}.issubset(df_r.columns):
+                            if "room_name" not in df_r.columns:
+                                df_r["room_name"] = df_r["room_id"]
+                            st.session_state["active_rooms"] = df_r
+                            st.success(f"✓ Loaded {len(df_r)} venues successfully!")
+                            st.dataframe(df_r.head(3), use_container_width=True, hide_index=True)
+                        else:
+                            st.error("Rooms CSV must contain 'room_id' and 'capacity'.")
+                    except Exception as e:
+                        st.error(f"Error parsing CSV: {e}")
+
+        with up_col2:
+            # 3. Faculty Upload
+            with st.expander("👨‍🏫 3. Upload Academic Faculty Roster", expanded=True):
+                st.markdown("""
+                <div style='font-size: 0.78rem; color: #94A3B8; margin-bottom: 8px;'>
+                    <b>Required CSV Columns:</b> <code>lecturer_id</code>, <code>lecturer_name</code>
+                </div>
+                """, unsafe_allow_html=True)
+                sample_lecturers_csv = "lecturer_id,lecturer_name\nL001,Prof. N. Perera\nL002,Dr. K. Silva\nL003,Ms. D. Fernando"
+                st.download_button("📥 Download Lecturers CSV Template", data=sample_lecturers_csv, file_name="lecturers_template.csv", mime="text/csv", use_container_width=True)
+                
+                uploaded_lecturers = st.file_uploader("Upload Lecturers CSV", type=["csv"], key="uploader_lecturers")
+                if uploaded_lecturers is not None:
+                    try:
+                        df_l = pd.read_csv(uploaded_lecturers)
+                        if {"lecturer_id"}.issubset(df_l.columns):
+                            if "lecturer_name" not in df_l.columns:
+                                df_l["lecturer_name"] = df_l["lecturer_id"]
+                            st.session_state["active_lecturers"] = df_l
+                            st.success(f"✓ Loaded {len(df_l)} lecturers successfully!")
+                            st.dataframe(df_l.head(3), use_container_width=True, hide_index=True)
+                        else:
+                            st.error("Lecturers CSV must contain 'lecturer_id'.")
+                    except Exception as e:
+                        st.error(f"Error parsing CSV: {e}")
+
+            # 4. Student Cohort Sizes Upload
+            with st.expander("👥 4. Upload Student Groups & Cohort Sizes", expanded=False):
+                st.markdown("""
+                <div style='font-size: 0.78rem; color: #94A3B8; margin-bottom: 8px;'>
+                    <b>Required CSV Columns:</b> <code>group_id</code>, <code>intake_id</code>, <code>program_id</code>, <code>student_count</code>
+                </div>
+                """, unsafe_allow_html=True)
+                sample_groups_csv = "group_id,intake_id,program_id,student_count\n42_CS,42,CS,28\n42_SE,42,SE,30\n42_CE,42,CE,24"
+                st.download_button("📥 Download Cohorts CSV Template", data=sample_groups_csv, file_name="cohorts_template.csv", mime="text/csv", use_container_width=True)
+                
+                uploaded_groups = st.file_uploader("Upload Cohorts CSV", type=["csv"], key="uploader_cohorts")
+                if uploaded_groups is not None:
+                    try:
+                        df_g = pd.read_csv(uploaded_groups)
+                        if {"intake_id", "program_id", "student_count"}.issubset(df_g.columns):
+                            if "group_id" not in df_g.columns:
+                                df_g["group_id"] = df_g["intake_id"].astype(str) + "_" + df_g["program_id"].astype(str)
+                            st.session_state["active_intake_programs"] = df_g
+                            st.success(f"✓ Loaded {len(df_g)} cohort groups successfully!")
+                            st.dataframe(df_g.head(3), use_container_width=True, hide_index=True)
+                        else:
+                            st.error("Cohorts CSV must contain 'intake_id', 'program_id', and 'student_count'.")
+                    except Exception as e:
+                        st.error(f"Error parsing CSV: {e}")
+        
+        # Reset to Default Dataset Button
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+        if st.button("🔄 Reset to Official University Defaults (28 Courses / 7 Venues / 19 Staff)"):
+            st.session_state["active_subjects"] = default_subjects.copy()
+            st.session_state["active_subject_groups"] = default_subject_groups.copy()
+            st.session_state["active_rooms"] = rooms.copy()
+            st.session_state["active_lecturers"] = lecturers.copy()
+            st.session_state["active_intake_programs"] = default_intake_programs.copy()
+            st.success("Reset all active datasets to official university curriculum defaults.")
+            st.rerun()
+    
     # Tab 1: Subjects Master
     with data_tab[0]:
         st.markdown("<h4 style='color: #FFFFFF; margin-bottom: 4px;'>📚 Official Course Catalog</h4>", unsafe_allow_html=True)
         st.caption("Active university course definitions for Intakes 41, 42, and 43.")
         
-        if "lecturer_id" in lecturers.columns:
+        current_active_subjects = st.session_state.get("active_subjects", default_subjects)
+        current_active_lecturers = st.session_state.get("active_lecturers", lecturers)
+        
+        if "lecturer_id" in current_active_lecturers.columns:
             lecturer_options = (
-                lecturers["lecturer_id"].dropna().astype(str).str.strip()
+                current_active_lecturers["lecturer_id"].dropna().astype(str).str.strip()
                 .loc[lambda x: x.ne("")].drop_duplicates().tolist()
             )
         else:
             lecturer_options = []
         
         subjects_input = st.data_editor(
-            default_subjects,
+            current_active_subjects,
             num_rows="dynamic",
             use_container_width=True,
             key="subjects_editor",
@@ -1433,21 +1582,23 @@ elif page == "📁 Data Management":
                 "course_type": st.column_config.SelectboxColumn("Core/Elective", options=["C", "E"])
             }
         )
+        st.session_state["active_subjects"] = subjects_input
     
     # Tab 2: Shared Cohort Mapping
-    with data_tab[1]:
+    with data_tab[2]:
         st.markdown("<h4 style='color: #FFFFFF; margin-bottom: 4px;'>🔗 Shared Lecture Multi-Intake Mapping</h4>", unsafe_allow_html=True)
         st.caption("Define which student cohorts attend each common lecture simultaneously.")
         
         subject_id_options = (
-            default_subjects["course_id"].dropna().astype(str).str.strip()
+            st.session_state["active_subjects"]["course_id"].dropna().astype(str).str.strip()
             .loc[lambda x: x.ne("")].drop_duplicates().tolist()
         )
-        intake_options = ["40", "41", "42", "43"]
-        program_options = ["CE", "CS", "SE", "DBA"]
+        intake_options = ["40", "41", "42", "43", "44", "45"]
+        program_options = ["CE", "CS", "SE", "DBA", "IT", "IS"]
         
+        current_active_groups = st.session_state.get("active_subject_groups", default_subject_groups)
         subject_groups_input = st.data_editor(
-            default_subject_groups,
+            current_active_groups,
             num_rows="dynamic",
             use_container_width=True,
             key="subject_groups_editor",
@@ -1457,6 +1608,7 @@ elif page == "📁 Data Management":
                 "program_id": st.column_config.SelectboxColumn("Degree Program", options=program_options)
             }
         )
+        st.session_state["active_subject_groups"] = subject_groups_input
         
         # Live Shared Lecture Analysis
         st.markdown("<h4 style='color: #FFFFFF; margin-top: 24px; margin-bottom: 4px;'>👥 Cohort Synthesis Preview</h4>", unsafe_allow_html=True)
@@ -1494,7 +1646,7 @@ elif page == "📁 Data Management":
             st.dataframe(pd.DataFrame(preview_rows), use_container_width=True, hide_index=True)
             
     # Tab 3: Academic Framework
-    with data_tab[2]:
+    with data_tab[3]:
         af_c1, af_c2 = st.columns(2)
         with af_c1:
             st.markdown("<h4 style='color: #FFFFFF;'>🎓 Registered Intakes</h4>", unsafe_allow_html=True)
@@ -1502,21 +1654,21 @@ elif page == "📁 Data Management":
         with af_c2:
             st.markdown("<h4 style='color: #FFFFFF;'>🎓 Degree Programs</h4>", unsafe_allow_html=True)
             st.dataframe(default_programs, use_container_width=True, hide_index=True)
-        st.markdown("<h4 style='color: #FFFFFF; margin-top: 14px;'>🔗 Intake-Program Cohort Sizes</h4>", unsafe_allow_html=True)
-        st.dataframe(default_intake_programs, use_container_width=True, hide_index=True)
+        st.markdown("<h4 style='color: #FFFFFF; margin-top: 14px;'>🔗 Active Intake-Program Cohort Sizes</h4>", unsafe_allow_html=True)
+        st.dataframe(st.session_state.get("active_intake_programs", default_intake_programs), use_container_width=True, hide_index=True)
         
     # Tab 4: Rooms
-    with data_tab[3]:
+    with data_tab[4]:
         st.markdown("<h4 style='color: #FFFFFF;'>🏫 Teaching Venues & Laboratories</h4>", unsafe_allow_html=True)
-        st.dataframe(rooms, use_container_width=True, hide_index=True)
+        st.dataframe(st.session_state.get("active_rooms", rooms), use_container_width=True, hide_index=True)
         
     # Tab 5: Lecturers
-    with data_tab[4]:
+    with data_tab[5]:
         st.markdown("<h4 style='color: #FFFFFF;'>👨‍🏫 Academic Faculty Roster</h4>", unsafe_allow_html=True)
-        st.dataframe(lecturers, use_container_width=True, hide_index=True)
+        st.dataframe(st.session_state.get("active_lecturers", lecturers), use_container_width=True, hide_index=True)
         
     # Tab 6: Timeslot Grid
-    with data_tab[5]:
+    with data_tab[6]:
         st.markdown("<h4 style='color: #FFFFFF;'>⏰ 30-Minute Schedule Time Frame</h4>", unsafe_allow_html=True)
         st.dataframe(timeslots, use_container_width=True, hide_index=True)
 
@@ -1666,7 +1818,13 @@ elif page == "⚙️ Optimization":
             </div>
             """, unsafe_allow_html=True)
             
-            st.write("✓ Verified university dataset (28 courses, 7 rooms, 19 lecturers)")
+            active_s = st.session_state.get("active_subjects", default_subjects)
+            active_r = st.session_state.get("active_rooms", rooms)
+            active_l = st.session_state.get("active_lecturers", lecturers)
+            active_sg = st.session_state.get("active_subject_groups", default_subject_groups)
+            active_ip = st.session_state.get("active_intake_programs", default_intake_programs)
+            
+            st.write(f"✓ Verified university dataset ({len(active_s)} courses, {len(active_r)} rooms, {len(active_l)} lecturers)")
             st.write("✓ Validated student cohort matrices & room capacity bounds")
             st.write(f"✓ Initialized population ({pop_size} chromosomes)")
             
@@ -1694,12 +1852,12 @@ elif page == "⚙️ Optimization":
                     best_fitness,
                     fitness_history
                 ) = generate_optimized_timetable(
-                    courses=default_subjects,
-                    rooms=rooms,
-                    lecturers=lecturers,
+                    courses=active_s,
+                    rooms=active_r,
+                    lecturers=active_l,
                     timeslots=timeslots,
-                    subject_mappings=default_subject_groups,
-                    intake_programs=default_intake_programs,
+                    subject_mappings=active_sg,
+                    intake_programs=active_ip,
                     population_size=pop_size,
                     generations=num_generations,
                     progress_callback=on_ga_step
@@ -1711,7 +1869,7 @@ elif page == "⚙️ Optimization":
                 # Format output rows
                 rows = []
                 for entry in best_timetable.entries:
-                    subject = default_subjects[default_subjects["course_id"].astype(str) == str(entry.course_id)]
+                    subject = active_s[active_s["course_id"].astype(str) == str(entry.course_id)]
                     if subject.empty:
                         continue
                     subject = subject.iloc[0]
@@ -1721,7 +1879,7 @@ elif page == "⚙️ Optimization":
                         continue
                     slot = slot.iloc[0]
 
-                    room = rooms[rooms["room_id"].astype(str) == str(entry.room_id)]
+                    room = active_r[active_r["room_id"].astype(str) == str(entry.room_id)]
                     if room.empty:
                         continue
 
@@ -1741,9 +1899,9 @@ elif page == "⚙️ Optimization":
                             if group_key[1] not in program_list:
                                 program_list.append(group_key[1])
 
-                            rows_count = default_intake_programs[
-                                (default_intake_programs["intake_id"].astype(str).str.strip() == group_key[0]) &
-                                (default_intake_programs["program_id"].astype(str).str.strip().str.upper() == group_key[1])
+                            rows_count = active_ip[
+                                (active_ip["intake_id"].astype(str).str.strip() == group_key[0]) &
+                                (active_ip["program_id"].astype(str).str.strip().str.upper() == group_key[1])
                             ]
                             if not rows_count.empty:
                                 try:
