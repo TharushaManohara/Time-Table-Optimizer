@@ -6,6 +6,7 @@
 [![Pytest](https://img.shields.io/badge/Tests-22%20Passed%20(100%25)-brightgreen?logo=pytest&logoColor=white)](https://pytest.org/)
 [![Architecture](https://img.shields.io/badge/AI%20Model-Memetic%20Genetic%20Algorithm-purple)](#-applied-artificial-intelligence-concepts)
 [![License](https://img.shields.io/badge/Academic%20Project-Intake%2041%20%2F%2042-orange)](#-academic-project-context)
+[![Project Report](https://img.shields.io/badge/Project%20Report-PDF%20View-red?logo=adobeacrobatreader&logoColor=white)](report/final%20report(group56).pdf)
 
 ---
 
